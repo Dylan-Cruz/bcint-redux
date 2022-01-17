@@ -26,6 +26,4 @@ public class WebClientConfig {
     public RateLimiter getScryfallRateLimiter() {
         return RateLimiter.create(9, 60l, TimeUnit.SECONDS);
     }
-
-    // BigCommerce config
 }
