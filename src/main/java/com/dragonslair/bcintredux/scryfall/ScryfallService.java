@@ -26,16 +26,20 @@ public class ScryfallService {
     public ScryfallCard getCardById(String id) throws ScryfallServiceException {
         rateLimiter.acquire(1);
 
-        // configure the call
-        return webClient
-                .get()
-                .uri("/cards/{id}", id)
-                .retrieve()
-                .onStatus(HttpStatus::isError, error -> {
-                    return Mono.error(new ScryfallServiceException("Error calling scryfall /cards/" + id + " status code: " + error.statusCode()));
-                })
-                .bodyToMono(ScryfallCard.class)
-                .block();
+        try {
+            // configure the call
+            return webClient
+                    .get()
+                    .uri("/cards/{id}", id)
+                    .retrieve()
+                    .onStatus(HttpStatus::isError, error -> {
+                        return Mono.error(new ScryfallServiceException("Error calling scryfall /cards/" + id + " status code: " + error.statusCode()));
+                    })
+                    .bodyToMono(ScryfallCard.class)
+                    .block();
+        } catch (Exception e) {
+            throw new ScryfallServiceException("Unhandled exception occurred fetching card id " + id, e);
+        }
     }
 
     // search cards

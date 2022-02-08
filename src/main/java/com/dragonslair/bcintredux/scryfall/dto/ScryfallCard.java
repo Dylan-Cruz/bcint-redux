@@ -1,6 +1,7 @@
 package com.dragonslair.bcintredux.scryfall.dto;
 
-import ch.qos.logback.core.Layout;
+
+import com.dragonslair.bcintredux.enums.Layout;
 import com.dragonslair.bcintredux.enums.Rarity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
