@@ -1,6 +1,6 @@
 package com.dragonslair.bcintredux.scryfall;
 
-public class ScryfallServiceException extends Exception {
+public class ScryfallServiceException extends RuntimeException {
 
     public ScryfallServiceException(String message) {
         super(message);
