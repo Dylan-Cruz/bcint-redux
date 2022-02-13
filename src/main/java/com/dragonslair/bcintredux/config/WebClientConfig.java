@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -26,4 +27,22 @@ public class WebClientConfig {
     public RateLimiter getScryfallRateLimiter() {
         return RateLimiter.create(9, 60l, TimeUnit.SECONDS);
     }
+
+    @Bean
+    public WebClient getBigCommerceWebClient(
+        @Value("dragonslair.bigcommerce.rooturi") String baseUrl,
+        @Value("dragonslair.bigcommerce.clientid") String clientId,
+        @Value("dragonslair.bigcommerce.token") String token
+    ) {
+        return WebClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader("X-Auth-Client", clientId)
+                .defaultHeader("X-Auth-Token", token)
+                .defaultHeader("Accepts", MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
+    @Bean
+    public RateLimiter getBigCommerceRateLimiter() { return RateLimiter.create(1000.0, Duration.ofMinutes(1L)); }
 }

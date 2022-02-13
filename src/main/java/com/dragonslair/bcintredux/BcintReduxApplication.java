@@ -8,6 +8,7 @@ public class BcintReduxApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BcintReduxApplication.class, args);
+
 	}
 
 }
