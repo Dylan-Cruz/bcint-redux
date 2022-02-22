@@ -1,9 +1,11 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
+import com.dragonslair.bcintredux.bigcommerce.rest.BcApiResponse;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -45,7 +47,8 @@ public class BigCommerceService {
                                 + " status code: "
                                 + result.statusCode()))
                 )
-                .bodyToMono(Variant.class)
-                .block();
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Variant>>(){})
+                .block()
+                .getData();
     }
 }

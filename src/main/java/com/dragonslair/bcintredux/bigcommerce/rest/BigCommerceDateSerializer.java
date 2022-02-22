@@ -1,4 +1,4 @@
-package com.dragonslair.bcintredux.bigcommerce;
+package com.dragonslair.bcintredux.bigcommerce.rest;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;

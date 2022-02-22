@@ -1,6 +1,6 @@
 package com.dragonslair.bcintredux.bigcommerce.dto;
 
-import com.dragonslair.bcintredux.bigcommerce.BigCommerceDateSerializer;
+import com.dragonslair.bcintredux.bigcommerce.rest.BigCommerceDateSerializer;
 import com.dragonslair.bcintredux.bigcommerce.enums.Availability;
 import com.dragonslair.bcintredux.bigcommerce.enums.InventoryTracking;
 import com.dragonslair.bcintredux.bigcommerce.enums.Type;
