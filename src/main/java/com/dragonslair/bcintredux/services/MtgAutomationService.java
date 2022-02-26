@@ -2,6 +2,9 @@ package com.dragonslair.bcintredux.services;
 
 import com.dragonslair.bcintredux.bigcommerce.BigCommerceService;
 import com.dragonslair.bcintredux.enums.Condition;
+import com.dragonslair.bcintredux.model.AddQuantityJob;
+import com.dragonslair.bcintredux.scryfall.ScryfallService;
+import com.dragonslair.bcintredux.utility.PriceSuggestor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,17 +15,45 @@ public class MtgAutomationService {
     @Autowired
     private BigCommerceService bcService;
 
-    public void addQuantity(String scryfallId, int Quanity, Condition condition, boolean foilInHand) {
-        // get the card data from scryfall
+    @Autowired
+    private ScryfallService sfService;
 
-        // generate the sku so we can query bigcommerce
+    @Autowired
+    private PriceSuggestor priceSuggestor;
 
-        // get the variant by sku
+    /**
+     * Updates a given variant matching the scryfall card, condition, and foiling
+     * incrementing quantity and updating the price.
+     * @param scryfallId
+     * @param quantity
+     * @param condition
+     * @param foilInHand
+     * @return aqJob
+     */
+    public AddQuantityJob addQuantity(String scryfallId, int quantity, Condition condition, boolean foilInHand) {
+        // make the job to return
+        AddQuantityJob aqJob = new AddQuantityJob(scryfallId, quantity, condition, foilInHand);
 
-        // update the price
+        try {
+            // get the card data from scryfall
 
-        // update the quantity
+            // generate the sku so we can query bigcommerce
 
-        // push the changes to big commerce
+            // get the variant by sku
+
+            // update the price
+
+            // update the quantity
+
+            // push the changes to big commerce
+
+            // return the job
+        } catch (Exception e) {
+            aqJob.setMessage("An unknown error occurred importing quantity for scryfall id: "
+                    + scryfallId + "\n"
+                    + e.getMessage());
+        }
+
+        return aqJob;
     }
 }

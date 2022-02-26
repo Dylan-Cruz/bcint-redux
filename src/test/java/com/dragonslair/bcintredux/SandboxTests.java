@@ -23,7 +23,7 @@ public class SandboxTests {
             System.out.println("Call " + i);
 
             try {
-                Variant v = bigCommerceService.getVariantsBySku("MTGSAKH117RNM");
+                Variant v = bigCommerceService.getVariantBySku("MTGSAKH117RNM");
                 System.out.println("Successfully got variant with id: " + v.getId());
             } catch (BigCommerceServiceException exception) {
                 System.out.println("ERROR - " + exception.getMessage());

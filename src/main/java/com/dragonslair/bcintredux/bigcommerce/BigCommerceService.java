@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
@@ -20,10 +21,10 @@ public class BigCommerceService {
     private WebClient webClient;
     private RateLimiter rateLimiter;
 
-    private int requestsRemaining = 1;
-    private int timeToReset = 100;
-    private int requestQuota = 10;
-    private int timeWindow = 100;
+    private AtomicInteger requestsRemaining = new AtomicInteger(1);
+    private AtomicInteger timeToResetMs = new AtomicInteger(0);
+    private AtomicInteger requestQuota = new AtomicInteger(1);
+    private AtomicInteger timeWindowMs = new AtomicInteger(1);
 
     public BigCommerceService(
         @Autowired WebClient bigCommerceWebClient,
@@ -38,7 +39,7 @@ public class BigCommerceService {
      * @param variantSku
      * @return Variant
      */
-    public Variant getVariantsBySku(String variantSku) {
+    public Variant getVariantBySku(String variantSku) {
         // get our variant
         List<Variant> variants = webClient
                 .get()
@@ -69,5 +70,24 @@ public class BigCommerceService {
         } else {
             throw new BigCommerceServiceException("More than one variant exists with sku: " + variantSku);
         }
+    }
+
+
+    public Variant updateVariant(int productId, int variantId, String sku, Variant patch) {
+        return webClient.put()
+                .uri(uriBuilder -> uriBuilder
+                        .path("catalog/products/{productId}/variants/{variantId}")
+                        .build(productId, variantId)
+                )
+                .body(Mono.just(patch), Variant.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        Mono.error(new BigCommerceServiceException("Error updating variant with sku: "
+                                + sku
+                                + " status code: "
+                                + result.statusCode())))
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Variant>>(){})
+                .block()
+                .getData();
     }
 }

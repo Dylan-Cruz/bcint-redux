@@ -225,7 +225,7 @@ public class BigCommerceServiceTests {
         server.enqueue(response);
 
         // make the call
-        service.getVariantsBySku("test-sku");
+        service.getVariantBySku("test-sku");
 
         // pop the call
         RecordedRequest request = server.takeRequest();
@@ -249,7 +249,7 @@ public class BigCommerceServiceTests {
         // validate
         BigCommerceServiceException exception = assertThrowsExactly(
             BigCommerceServiceException.class, () -> {
-                service.getVariantsBySku("test-sku");
+                service.getVariantBySku("test-sku");
             }
         );
         assertEquals("Error searching for variant with sku test-sku status code: 422 UNPROCESSABLE_ENTITY", exception.getMessage());
@@ -268,7 +268,7 @@ public class BigCommerceServiceTests {
         server.enqueue(response);
 
         // make the call
-        Variant v = service.getVariantsBySku("test-sku");
+        Variant v = service.getVariantBySku("test-sku");
 
         assertEquals(341571, v.getId());
         assertEquals("MTGSAKH117RNM", v.getSku());
@@ -289,7 +289,7 @@ public class BigCommerceServiceTests {
         // make the call
         BigCommerceServiceException exception = assertThrowsExactly(
                 BigCommerceServiceException.class, () -> {
-                    service.getVariantsBySku("test-sku");
+                    service.getVariantBySku("test-sku");
                 }
         );
         assertEquals("No variants exist with sku: test-sku", exception.getMessage());
@@ -311,7 +311,7 @@ public class BigCommerceServiceTests {
         // make the call
         BigCommerceServiceException exception = assertThrowsExactly(
                 BigCommerceServiceException.class, () -> {
-                    service.getVariantsBySku("test-sku");
+                    service.getVariantBySku("test-sku");
                 }
         );
         assertEquals("More than one variant exists with sku: test-sku", exception.getMessage());
