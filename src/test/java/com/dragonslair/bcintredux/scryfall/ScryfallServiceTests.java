@@ -6,23 +6,18 @@ import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.jupiter.api.*;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 public class ScryfallServiceTests {
 
@@ -185,6 +180,8 @@ public class ScryfallServiceTests {
                 .setResponseCode(HttpStatus.OK.value())
                 .setBody(jsonBody);
 
+
+
         // enqueue the response
         server.enqueue(response);
 
@@ -194,7 +191,7 @@ public class ScryfallServiceTests {
         // pop the call
         RecordedRequest request = server.takeRequest();
 
-        assertEquals(request.getMethod(), "GET");
+        assertEquals(request.getMethod(), HttpMethod.GET.name());
         assertEquals(request.getPath(), "/scryfall/cards/test-id");
     }
 
