@@ -30,4 +30,13 @@ public class SandboxTests {
             }
         }
     }
+
+    @Test
+    public void testUpdateVariant() {
+        Variant v = bigCommerceService.getVariantBySku("MTGSAKH117RNM");
+        int oldQuantity = v.getInventoryLevel();
+        Variant patch = new Variant().setPrice(9999.9).setInventoryLevel(4);
+        v = bigCommerceService.updateVariant(v.getProductId(), v.getId(), "MTGSAKH117RNM", patch);
+        System.out.println(v);
+    }
 }

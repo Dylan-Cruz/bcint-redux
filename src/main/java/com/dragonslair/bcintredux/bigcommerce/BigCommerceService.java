@@ -1,6 +1,7 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
+import com.dragonslair.bcintredux.bigcommerce.rest.BcApiErrorResponse;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiResponse;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
@@ -50,10 +51,13 @@ public class BigCommerceService {
                 )
                 .retrieve()
                 .onStatus(HttpStatus::isError, result ->
-                        Mono.error(new BigCommerceServiceException("Error searching for variant with sku "
-                                + variantSku
-                                + " status code: "
-                                + result.statusCode()))
+                    result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                        bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error searching for variant with sku "
+                            + variantSku
+                            + " "
+                            + bcApiErrorResponse.toString())
+                        )
+                    )
                 )
                 .bodyToMono(new ParameterizedTypeReference<BcApiResponse<List<Variant>>>(){})
                 .block()
@@ -73,7 +77,7 @@ public class BigCommerceService {
     }
 
 
-    public Variant updateVariant(int productId, int variantId, String sku, Variant patch) {
+    public Variant updateVariant(int productId, int variantId, String variantSku, Variant patch) {
         return webClient.put()
                 .uri(uriBuilder -> uriBuilder
                         .path("catalog/products/{productId}/variants/{variantId}")
@@ -82,10 +86,14 @@ public class BigCommerceService {
                 .body(Mono.just(patch), Variant.class)
                 .retrieve()
                 .onStatus(HttpStatus::isError, result ->
-                        Mono.error(new BigCommerceServiceException("Error updating variant with sku: "
-                                + sku
-                                + " status code: "
-                                + result.statusCode())))
+                    result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                        bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error searching for variant with sku "
+                            + variantSku
+                            + " "
+                            + bcApiErrorResponse.toString())
+                        )
+                    )
+                )
                 .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Variant>>(){})
                 .block()
                 .getData();

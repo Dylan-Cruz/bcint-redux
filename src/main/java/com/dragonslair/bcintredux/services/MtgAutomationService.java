@@ -41,17 +41,15 @@ public class MtgAutomationService {
 
             // get the variant by sku
 
-            // update the price
+            // update the price and quantity
 
-            // update the quantity
+            // push the changes to bigcommerce
 
-            // push the changes to big commerce
+            // set the product to be visible
 
-            // return the job
         } catch (Exception e) {
-            aqJob.setMessage("An unknown error occurred importing quantity for scryfall id: "
-                    + scryfallId + "\n"
-                    + e.getMessage());
+            aqJob.setMessage("An unknown error occurred adding quantity: "
+                + e.getMessage());
         }
 
         return aqJob;
