@@ -3,7 +3,6 @@ package com.dragonslair.bcintredux.bigcommerce;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiErrorResponse;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiResponse;
-import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,26 +12,15 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @Slf4j
 public class BigCommerceService {
 
     private WebClient webClient;
-    private RateLimiter rateLimiter;
 
-    private AtomicInteger requestsRemaining = new AtomicInteger(1);
-    private AtomicInteger timeToResetMs = new AtomicInteger(0);
-    private AtomicInteger requestQuota = new AtomicInteger(1);
-    private AtomicInteger timeWindowMs = new AtomicInteger(1);
-
-    public BigCommerceService(
-        @Autowired WebClient bigCommerceWebClient,
-        @Autowired RateLimiter bigCommerceRateLimiter
-    ) {
+    public BigCommerceService(@Autowired WebClient bigCommerceWebClient) {
         webClient = bigCommerceWebClient;
-        rateLimiter = bigCommerceRateLimiter;
     }
 
     /**

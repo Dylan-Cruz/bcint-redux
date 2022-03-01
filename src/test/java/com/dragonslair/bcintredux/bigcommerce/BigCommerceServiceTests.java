@@ -1,7 +1,6 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
-import com.google.common.util.concurrent.RateLimiter;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -203,8 +202,7 @@ public class BigCommerceServiceTests {
         HttpUrl baseUrl = server.url("/bigcommerce/");
 
         service = new BigCommerceService(
-                WebClient.builder().baseUrl(baseUrl.toString()).build(),
-                RateLimiter.create(1000)
+                WebClient.builder().baseUrl(baseUrl.toString()).build()
         );
     }
 
