@@ -19,14 +19,12 @@ public class BigCommerceWebClientConfig {
     @Bean
     public WebClient bigCommerceWebClient(
             @Value("${dragonslair.bigcommerce.rooturi}") String rooturi,
-            @Value("${dragonslair.bigcommerce.clientid}") String clientId,
             @Value("${dragonslair.bigcommerce.token}") String token,
             @Autowired BigCommerceQuotaManager quotaManager,
             @Autowired RateLimiter bigCommerceRateLimiter
             ) {
         return WebClient.builder()
                 .baseUrl(rooturi)
-                //.defaultHeader("X-Auth-Client", clientId)
                 .defaultHeader("X-Auth-Token", token)
                 .defaultHeader("Accepts", MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
