@@ -19,8 +19,15 @@ repositories {
 }
 
 dependencies {
+	// aws
+	implementation platform('software.amazon.awssdk:bom:2.17.141')
+	implementation 'software.amazon.awssdk:s3'
+
+	// spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// guava rate limiter
 	implementation("com.google.guava:guava:31.0.1-jre")
 
 	// dev dependencies

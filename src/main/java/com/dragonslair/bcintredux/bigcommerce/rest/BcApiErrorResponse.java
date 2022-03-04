@@ -12,4 +12,14 @@ public class BcApiErrorResponse {
     private String status;
     private String title;
     private String type;
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+            .append("status: ")
+            .append(status)
+            .append("message: ")
+            .append(title)
+            .toString();
+    }
 }
