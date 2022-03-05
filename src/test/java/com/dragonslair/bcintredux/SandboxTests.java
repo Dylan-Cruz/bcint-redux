@@ -6,6 +6,7 @@ import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.model.AddQuantityJob;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
+import com.dragonslair.bcintredux.tasks.ProcessRocaInputTask;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,9 @@ public class SandboxTests {
 
     @Autowired
     private BigCommerceService bigCommerceService;
+
+    @Autowired
+    private ProcessRocaInputTask inputTask;
 
     @Test
     public void seeIfRateLimiterWorks() {
@@ -50,5 +54,10 @@ public class SandboxTests {
                 Condition.NM,
                 true
         );
+    }
+
+    @Test
+    public void processRocaTaskTest() {
+        inputTask.runTask();
     }
 }

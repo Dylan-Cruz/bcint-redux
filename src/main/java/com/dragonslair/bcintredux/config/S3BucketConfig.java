@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 public class S3BucketConfig {
 
     @Bean
-    public S3Client s3Client(
+    public S3Client bcintS3Client(
             @Value("${aws.access.key.id}") String accessKeyId,
             @Value("${aws.secret.key.id}") String secretKeyId
     ) {
