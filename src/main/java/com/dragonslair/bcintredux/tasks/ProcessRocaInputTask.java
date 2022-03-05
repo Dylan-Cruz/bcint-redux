@@ -36,7 +36,9 @@ public class ProcessRocaInputTask {
             // if the file has a valid extension
             if (validateFileExtension(key)) {
                 try {
-                    
+                    // get the file as a buffered stream
+
+
 
                 } catch (RuntimeException e) {
                     rollbar.error(e, "An error occurred processing file for key " + key + ". We'll try again next time.");
