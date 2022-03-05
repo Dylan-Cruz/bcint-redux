@@ -30,6 +30,9 @@ dependencies {
 	// guava rate limiter
 	implementation("com.google.guava:guava:31.0.1-jre")
 
+	// rollbar
+	compileOnly 'com.rollbar:rollbar-spring-boot-webmvc:1.8.1'
+
 	// dev dependencies
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'

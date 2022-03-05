@@ -1,6 +1,7 @@
 package com.dragonslair.bcintredux.tasks;
 
 import com.dragonslair.bcintredux.services.MtgAutomationService;
+import com.rollbar.notifier.Rollbar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,49 +25,55 @@ public class ProcessRocaInputTask {
     @Autowired
     private S3Client bcintS3Client;
 
+    @Autowired
+    private Rollbar rollbar;
+
+    @Value("${aws.local.dir}")
+    private String filepath;
+
     @Value("${aws.bucket.name}")
     private String bucketName;
 
     public void runTask() {
-        // get a list of files that aren't changing
-        List<String> keys = new ArrayList<>();
+        for (String key : getAllFilesNotBeingUploaded()) {
+            // if the file doesn't have a valid extension
+            if (!validateFileExtension(key)) {
+                rollbar.error("File with key " + key + "is not a csv file. It will not process.");
+                continue;
+            }
 
-        try {
-            keys = getAllFilesNotBeingUploaded();
-        } catch (Exception e) {
-            // TODO log error
+            // get the object?
+            bcintS3Client.getObject(r -> r.bucket(bucketName), )
+
+
         }
-
-        // for each key
-            // download the file
-                // scenarios - file is not csv? leave it there, log an error
-                // file contents are bad? leave it there, log an error
-                // process the file
-
     }
 
     /**
      * Returns a list of object keys that at runtime did not have a change in content
      * length. Also ignores files that were not present at the initial content check
      * @return List of object keys
-     * @throws InterruptedException
      */
-    private List<String> getAllFilesNotBeingUploaded() throws InterruptedException {
-        // get all files that haven't changed in size since the last time we checked
-        ListObjectsResponse listObjectsResponse = bcintS3Client.listObjects(r -> {
-            r.bucket(bucketName)
-                    .prefix("toProcess/");
-        });
+    private List<String> getAllFilesNotBeingUploaded() {
+        try {
+            // get all files that haven't changed in size since the last time we checked
+            ListObjectsResponse listObjectsResponse = bcintS3Client.listObjects(r -> {
+                r.bucket(bucketName)
+                        .prefix("toProcess/");
+            });
 
-        // get our content lengths twice with a 3-second delay
-        Map<String, Long> firstKeysToContentLength = getKeyToContentLengthsMap(listObjectsResponse.contents());
-        Thread.sleep(3000);
-        Map<String, Long> secondKeysToContentLength = getKeyToContentLengthsMap(listObjectsResponse.contents());
+            // get our content lengths twice with a 3-second delay
+            Map<String, Long> firstKeysToContentLength = getKeyToContentLengthsMap(listObjectsResponse.contents());
+            Thread.sleep(3000);
+            Map<String, Long> secondKeysToContentLength = getKeyToContentLengthsMap(listObjectsResponse.contents());
 
-        // get a list of keys who's content length hasn't changed
-        return firstKeysToContentLength.keySet().stream()
-                .filter(k -> firstKeysToContentLength.get(k) == secondKeysToContentLength.get(k))
-                .collect(Collectors.toList());
+            // get a list of keys who's content length hasn't changed
+            return firstKeysToContentLength.keySet().stream()
+                    .filter(k -> firstKeysToContentLength.get(k) == secondKeysToContentLength.get(k))
+                    .collect(Collectors.toList());
+        } catch(Exception e) {
+            throw new RuntimeException("An error occurred finding eligible files to process. Process will be aborted.");
+        }
     }
 
     /**
@@ -90,12 +96,9 @@ public class ProcessRocaInputTask {
         return map;
     }
 
-    private boolean validateFileName(String key) {
+    private boolean validateFileExtension(String key) {
         // file is .csv file
         return key.toLowerCase().endsWith(".csv");
-
-        // last char before extension is valid foiling symbol
-        // 2nd and 3rd to last chars is valid condition symbol
     }
 
     private boolean validateFileContents() {
