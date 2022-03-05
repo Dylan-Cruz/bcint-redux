@@ -6,14 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.util.HashMap;
+import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -28,77 +26,51 @@ public class ProcessRocaInputTask {
     @Autowired
     private Rollbar rollbar;
 
-    @Value("${aws.local.dir}")
-    private String filepath;
-
     @Value("${aws.bucket.name}")
     private String bucketName;
 
     public void runTask() {
-        for (String key : getAllFilesNotBeingUploaded()) {
-            // if the file doesn't have a valid extension
-            if (!validateFileExtension(key)) {
-                rollbar.error("File with key " + key + "is not a csv file. It will not process.");
-                continue;
+        for (S3Object s3o : getFilesToProcess()) {
+            String key = s3o.key();
+
+            // if the file has a valid extension
+            if (validateFileExtension(key)) {
+                try {
+                    
+
+                } catch (RuntimeException e) {
+                    rollbar.error(e, "An error occurred processing file for key " + key + ". We'll try again next time.");
+                }
             }
-
-            // get the object?
-            bcintS3Client.getObject(r -> r.bucket(bucketName), )
-
-
         }
     }
 
     /**
-     * Returns a list of object keys that at runtime did not have a change in content
-     * length. Also ignores files that were not present at the initial content check
-     * @return List of object keys
+     * Returns a list of files in toProcess
+     * @return List of S3Objects with prefix toProcess/
      */
-    private List<String> getAllFilesNotBeingUploaded() {
+    private List<S3Object> getFilesToProcess() {
         try {
             // get all files that haven't changed in size since the last time we checked
-            ListObjectsResponse listObjectsResponse = bcintS3Client.listObjects(r -> {
-                r.bucket(bucketName)
-                        .prefix("toProcess/");
-            });
-
-            // get our content lengths twice with a 3-second delay
-            Map<String, Long> firstKeysToContentLength = getKeyToContentLengthsMap(listObjectsResponse.contents());
-            Thread.sleep(3000);
-            Map<String, Long> secondKeysToContentLength = getKeyToContentLengthsMap(listObjectsResponse.contents());
-
-            // get a list of keys who's content length hasn't changed
-            return firstKeysToContentLength.keySet().stream()
-                    .filter(k -> firstKeysToContentLength.get(k) == secondKeysToContentLength.get(k))
-                    .collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new RuntimeException("An error occurred finding eligible files to process. Process will be aborted.");
+            return bcintS3Client.listObjects(r ->
+                    r.bucket(bucketName)
+                    .prefix("toProcess/")
+            ).contents();
+        } catch(RuntimeException e) {
+            throw new RuntimeException("An error occurred finding eligible files to process. Process will be aborted.", e);
         }
-    }
-
-    /**
-     * Gets the content lenght for all objects and returns a map of key to content length
-     * @param s3Objects
-     * @return Map S3Object Key to Content length
-     */
-    private Map<String, Long> getKeyToContentLengthsMap(List<S3Object> s3Objects) {
-        Map<String, Long> map = new HashMap<>();
-
-        s3Objects.forEach( s3Object ->
-            map.put(s3Object.key(),
-                bcintS3Client.headObject(r ->
-                        r.bucket(bucketName)
-                        .key(s3Object.key())
-                    ).contentLength()
-                )
-        );
-
-        return map;
     }
 
     private boolean validateFileExtension(String key) {
-        // file is .csv file
-        return key.toLowerCase().endsWith(".csv");
+        boolean valid = key.toLowerCase().endsWith(".csv");
+        if (!valid){
+            rollbar.error("File with key " + key + "is not a csv file. It will not process. Verify and replace the file to try again. Ensure the old one is deleted.");
+        }
+        return valid;
+    }
+
+    private InputStream getS3ObjectAsInputStream(String key) {
+        return bcintS3Client.getObject(r -> r.bucket(bucketName).key(key), ResponseTransformer.toInputStream());
     }
 
     private boolean validateFileContents() {
