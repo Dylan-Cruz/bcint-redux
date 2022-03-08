@@ -31,17 +31,17 @@ public class MtgAutomationService {
     /**
      * Updates a given variant matching the scryfall card, condition, and foiling
      * incrementing quantity and updating the price.
-     * @param scryfallId
-     * @param quantity
-     * @param condition
-     * @param foilInHand
+     * @param aqjob
      * @return aqJob
      */
-    public AddQuantityJob addQuantity(String scryfallId, int quantity, Condition condition, boolean foilInHand) {
+    public AddQuantityJob processAddQuantity(AddQuantityJob aqJob) {
         // make the job to return
-        AddQuantityJob aqJob = new AddQuantityJob(scryfallId, quantity, condition, foilInHand);
-
         try {
+            // validate
+
+            // break out the fields
+
+
             aqJob.setStatus(OperationStatus.IN_PROGRESS);
 
             // get the card data from scryfall
@@ -83,11 +83,25 @@ public class MtgAutomationService {
             aqJob.setMessage(sse.getMessage());
         } catch (BigCommerceServiceException bce) {
             aqJob.setMessage(bce.getMessage());
-        } catch (Exception e) {
-            aqJob.setMessage("An unknown error occurred adding quantity: "
+        } catch (RuntimeException e) {
+            aqJob.setMessage("An error occurred adding quantity: "
                 + e.getMessage());
         }
 
         return aqJob;
+    }
+
+    /**
+     * Validates the job is valid otherwise throws a new exception with the
+     * given error message
+     * @param aqJob
+     */
+    private void validateAddQuantityJob(AddQuantityJob aqJob) {
+        // sryfall id
+            // empty, null
+        // quantity > 0
+        // condition isn't null
+        String scryfallId = aqJob.getScryfallId();
+        if (scryfallId.isBlank())
     }
 }

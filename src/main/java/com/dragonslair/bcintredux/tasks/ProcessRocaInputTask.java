@@ -1,5 +1,7 @@
 package com.dragonslair.bcintredux.tasks;
 
+import com.dragonslair.bcintredux.enums.Condition;
+import com.dragonslair.bcintredux.model.AddQuantityJob;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
 import com.rollbar.notifier.Rollbar;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +14,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -60,14 +59,19 @@ public class ProcessRocaInputTask {
                     final int conditionIndex = headersToIndexes.get(CONDITION_KEY);
                     final int foilIndex = headersToIndexes.get(FOIL_KEY);
 
-                    // read the lines into memory
-                    String line;
-                    while ((line = reader.readLine()) != null) {
+                    // get a list of jobs to process and process them
+                    List<AddQuantityJob> jobs = reader.lines()
+                            .map(l -> Arrays.asList(l.split(regexToSplit)))
+                            .map(fields -> new AddQuantityJob(
+                                    fields.get(scryfallIndex),
+                                    parseQuantityFromLine(fields.get(quantityIndex)),
+                                    parseConditionFromLine(fields.get(conditionIndex)),
+                                    Boolean.parseBoolean(fields.get(foilIndex))))
+                            .map(job -> automationService.processAddQuantity(job))
+                            .toList();
 
-                    }
 
-                    // process the lines
-                    
+                    // write the jobs out to a results file with the same name
 
                 } catch (Exception e) {
                     rollbar.error(e, "An error occurred processing file for key " + key + ".");
@@ -154,5 +158,24 @@ public class ProcessRocaInputTask {
         }
 
         return headerToIndexMap;
+    }
+
+    // utility method to parse an int from a field in the file
+    // returning 0 as default
+    private int parseQuantityFromLine(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    // utility method to parse
+    private Condition parseConditionFromLine(String s) {
+        if (s == null || s.isEmpty() || s.isEmpty()) {
+            return null;
+        } else {
+            return s.equalsIgnoreCase("Near Mint") ? Condition.NM : Condition.PL;
+        }
     }
 }
