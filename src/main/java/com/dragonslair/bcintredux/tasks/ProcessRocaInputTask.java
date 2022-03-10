@@ -8,13 +8,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -34,6 +39,9 @@ public class ProcessRocaInputTask {
 
     // constants
     private final static String regexToSplit = "(?!\\B\"[^\"]*),(?![^\"]*\"\\B)";
+    private final static String SET_NAME_KEY = "Set Name";
+    private final static String CARD_NAME_KEY = "Product Name";
+    private final static String COLLECTOR_NUMBER_KEY = "Number";
     private final static String CONDITION_KEY = "Condition";
     private final static String QUANTITY_KEY = "Add to Quantity";
     private final static String SCRYFALL_ID_KEY = "Scryfall Id";
@@ -58,20 +66,31 @@ public class ProcessRocaInputTask {
                     final int quantityIndex = headersToIndexes.get(QUANTITY_KEY);
                     final int conditionIndex = headersToIndexes.get(CONDITION_KEY);
                     final int foilIndex = headersToIndexes.get(FOIL_KEY);
+                    final int nameIndex = headersToIndexes.get(CARD_NAME_KEY);
+                    final int setIndex = headersToIndexes.get(SET_NAME_KEY);
+                    final int numberIndex = headersToIndexes.get(COLLECTOR_NUMBER_KEY);
 
                     // get a list of jobs to process and process them
                     List<AddQuantityJob> jobs = reader.lines()
                             .map(l -> Arrays.asList(l.split(regexToSplit)))
-                            .map(fields -> new AddQuantityJob(
-                                    fields.get(scryfallIndex),
-                                    parseQuantityFromLine(fields.get(quantityIndex)),
-                                    parseConditionFromLine(fields.get(conditionIndex)),
-                                    Boolean.parseBoolean(fields.get(foilIndex))))
+                            .map(fields -> new AddQuantityJob()
+                                    .setScryfallId(fields.get(scryfallIndex))
+                                    .setQuantityToAdd(parseQuantityFromLine(fields.get(quantityIndex)))
+                                    .setCondition(parseConditionFromLine(fields.get(conditionIndex)))
+                                    .setFoilInHand(Boolean.parseBoolean(fields.get(foilIndex)))
+                                    .setCardName(fields.get(nameIndex))
+                                    .setSet(fields.get(setIndex))
+                                    .setCollectorNumber(fields.get(numberIndex))
+                            )
                             .map(job -> automationService.processAddQuantity(job))
                             .toList();
 
-
                     // write the jobs out to a results file with the same name
+                    bcintS3Client.putObject(r -> r.bucket(bucketName).key("processed/"+key), RequestBody.fromString(
+                        writeJobHeaderDelimitedLine() +
+                            jobs.stream().map(it -> writeJobToDelimitedLine(it))
+                                    .collect(Collectors.joining("\\n"))
+                    ));
 
                 } catch (Exception e) {
                     rollbar.error(e, "An error occurred processing file for key " + key + ".");
@@ -170,12 +189,50 @@ public class ProcessRocaInputTask {
         }
     }
 
-    // utility method to parse
+    // utility method to parse condition from the line
     private Condition parseConditionFromLine(String s) {
         if (s == null || s.isEmpty() || s.isEmpty()) {
             return null;
         } else {
             return s.equalsIgnoreCase("Near Mint") ? Condition.NM : Condition.PL;
         }
+    }
+
+    private String writeJobToDelimitedLine(AddQuantityJob aqJob) {
+        return new StringBuilder()
+                .append(aqJob.getCardName()).append(",")
+                .append(aqJob.getSet()).append(",")
+                .append(aqJob.getCollectorNumber()).append(",")
+                .append(aqJob.getScryfallId()).append(",")
+                .append(aqJob.getCondition().getLongForm()).append(",")
+                .append(aqJob.isFoilInHand()).append(",")
+                .append(aqJob.getTargetSku()).append(",")
+                .append(aqJob.getStatus().toString()).append(",")
+                .append(aqJob.getMessage()).append(",")
+                .append(aqJob.getStartingQuantity()).append(",")
+                .append(aqJob.getQuantityToAdd()).append(",")
+                .append(aqJob.getEndingQuantity()).append(",")
+                .append(aqJob.getStartingPrice()).append(",")
+                .append(aqJob.getEndingPrice())
+                .toString();
+    }
+
+    private String writeJobHeaderDelimitedLine() {
+        return new StringBuilder()
+                .append("Card Name,")
+                .append("Set Name,")
+                .append("Number,")
+                .append("Scryfall Id,")
+                .append("Condition,")
+                .append("Foil In Hand,")
+                .append("Target SKU,")
+                .append("Status,")
+                .append("Message,")
+                .append("Starting Quantity,")
+                .append("Quantity To Add,")
+                .append("Ending Quantity,")
+                .append("Starting Price,")
+                .append("Ending Price\\n")
+                .toString();
     }
 }

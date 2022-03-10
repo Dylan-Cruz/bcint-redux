@@ -12,6 +12,9 @@ import lombok.experimental.Accessors;
 public class AddQuantityJob {
     private String scryfallId;
     private String targetSku;
+    private String cardName;
+    private String set;
+    private String collectorNumber;
     private Condition condition;
     private boolean foilInHand;
     private int quantityToAdd;

@@ -37,6 +37,7 @@ public class MtgAutomationService {
         // make the job to return
         try {
             // validate
+            validateAddQuantityJob(aqJob);
 
             // break out the fields
             String scryfallId = aqJob.getScryfallId();
@@ -44,7 +45,7 @@ public class MtgAutomationService {
             boolean foilInHand = aqJob.isFoilInHand();
             Condition condition = aqJob.getCondition();
 
-
+            // start processing
             aqJob.setStatus(OperationStatus.IN_PROGRESS);
 
             // get the card data from scryfall
@@ -83,12 +84,15 @@ public class MtgAutomationService {
                     .setStatus(OperationStatus.COMPLETED);
 
         } catch (ScryfallServiceException sse) {
-            aqJob.setMessage(sse.getMessage());
+            aqJob.setMessage(sse.getMessage())
+                    .setStatus(OperationStatus.ERRORED);
         } catch (BigCommerceServiceException bce) {
-            aqJob.setMessage(bce.getMessage());
+            aqJob.setMessage(bce.getMessage())
+                    .setStatus(OperationStatus.ERRORED);
         } catch (RuntimeException e) {
             aqJob.setMessage("An error occurred adding quantity: "
-                + e.getMessage());
+                + e.getMessage())
+                    .setStatus(OperationStatus.ERRORED);
         }
 
         return aqJob;
@@ -100,11 +104,17 @@ public class MtgAutomationService {
      * @param aqJob
      */
     private void validateAddQuantityJob(AddQuantityJob aqJob) {
-        // sryfall id
-            // empty, null
-        // quantity > 0
-        // condition isn't null
-        //String scryfallId = aqJob.getScryfallId();
-        //if (scryfallId.isBlank())
+        String scryfallId = aqJob.getScryfallId();
+        if (scryfallId == null || scryfallId.isBlank()) {
+            throw new RuntimeException("ScryfallId cannot be null or blank");
+        }
+
+        if (aqJob.getQuantityToAdd() <= 0) {
+            throw new RuntimeException("Quantity to add cannot be less than 1");
+        }
+
+        if (aqJob.getCondition() == null) {
+            throw new RuntimeException("Condition cannot be null.");
+        }
     }
 }
