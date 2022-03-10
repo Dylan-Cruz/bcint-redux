@@ -31,7 +31,6 @@ public class MtgAutomationService {
     /**
      * Updates a given variant matching the scryfall card, condition, and foiling
      * incrementing quantity and updating the price.
-     * @param aqjob
      * @return aqJob
      */
     public AddQuantityJob processAddQuantity(AddQuantityJob aqJob) {
@@ -40,6 +39,10 @@ public class MtgAutomationService {
             // validate
 
             // break out the fields
+            String scryfallId = aqJob.getScryfallId();
+            int quantity = aqJob.getQuantityToAdd();
+            boolean foilInHand = aqJob.isFoilInHand();
+            Condition condition = aqJob.getCondition();
 
 
             aqJob.setStatus(OperationStatus.IN_PROGRESS);
@@ -101,7 +104,7 @@ public class MtgAutomationService {
             // empty, null
         // quantity > 0
         // condition isn't null
-        String scryfallId = aqJob.getScryfallId();
-        if (scryfallId.isBlank())
+        //String scryfallId = aqJob.getScryfallId();
+        //if (scryfallId.isBlank())
     }
 }
