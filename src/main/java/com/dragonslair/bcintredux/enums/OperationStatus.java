@@ -8,8 +8,8 @@ public enum OperationStatus {
 
     private String label;
 
-    private OperationStatus(String label) {
-        label = label;
+    OperationStatus(String label) {
+        this.label = label;
     }
 
     @Override

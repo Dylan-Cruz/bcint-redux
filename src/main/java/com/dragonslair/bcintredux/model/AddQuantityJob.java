@@ -23,13 +23,5 @@ public class AddQuantityJob {
     private double startingPrice;
     private double endingPrice;
     private OperationStatus status = OperationStatus.NOT_STARTED;
-    private String message;
-
-
-    public AddQuantityJob(String scryfallId, int quantityToAdd, Condition condition, boolean foilInHand) {
-        this.scryfallId = scryfallId;
-        this.quantityToAdd = quantityToAdd;
-        this.condition = condition;
-        this.foilInHand = foilInHand;
-    }
+    private String message = "";
 }

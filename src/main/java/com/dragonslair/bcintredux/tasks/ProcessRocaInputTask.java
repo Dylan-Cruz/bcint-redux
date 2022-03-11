@@ -86,11 +86,20 @@ public class ProcessRocaInputTask {
                             .toList();
 
                     // write the jobs out to a results file with the same name
-                    bcintS3Client.putObject(r -> r.bucket(bucketName).key("processed/"+key), RequestBody.fromString(
+                    String filename = "output/"+key.substring(key.lastIndexOf("/")+1, key.lastIndexOf(".csv"))+"_OUTPUT.csv";
+                    bcintS3Client.putObject(r -> r.bucket(bucketName).key(filename), RequestBody.fromString(
                         writeJobHeaderDelimitedLine() +
                             jobs.stream().map(it -> writeJobToDelimitedLine(it))
-                                    .collect(Collectors.joining("\\n"))
+                                    .collect(Collectors.joining("\n"))
                     ));
+
+                    // move the file to the processed 'dir'
+                    bcintS3Client.copyObject(r -> r.sourceBucket(bucketName)
+                            .sourceKey(key)
+                            .destinationBucket(bucketName)
+                            .destinationKey("processed/"+key.substring(key.lastIndexOf("/")+1))
+                    );
+                    bcintS3Client.deleteObject(r -> r.bucket(bucketName).key(key));
 
                 } catch (Exception e) {
                     rollbar.error(e, "An error occurred processing file for key " + key + ".");
@@ -110,7 +119,9 @@ public class ProcessRocaInputTask {
             return bcintS3Client.listObjects(r ->
                     r.bucket(bucketName)
                     .prefix("toProcess/")
-            ).contents();
+            ).contents().stream()
+                    .filter(o -> o.key().matches("toProcess/.+"))
+                    .toList();
         } catch(RuntimeException e) {
             throw new RuntimeException("An error occurred finding eligible files to process. Process will be aborted.", e);
         }
@@ -232,7 +243,8 @@ public class ProcessRocaInputTask {
                 .append("Quantity To Add,")
                 .append("Ending Quantity,")
                 .append("Starting Price,")
-                .append("Ending Price\\n")
+                .append("Ending Price")
+                .append("\n")
                 .toString();
     }
 }
