@@ -3,10 +3,10 @@ package com.dragonslair.bcintredux.tasks;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.model.AddQuantityJob;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
-import com.rollbar.notifier.Rollbar;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
@@ -31,9 +31,6 @@ public class ProcessRocaInputTask {
     @Autowired
     private S3Client bcintS3Client;
 
-    @Autowired
-    private Rollbar rollbar;
-
     @Value("${aws.bucket.name}")
     private String bucketName;
 
@@ -47,9 +44,14 @@ public class ProcessRocaInputTask {
     private final static String SCRYFALL_ID_KEY = "Scryfall Id";
     private final static String FOIL_KEY = "Foil";
 
+
+    @Scheduled(cron="${dragonslair.mtg.processroca.schedule}")
     public void runTask() {
+        log.info("Starting process roca input task.");
+
         for (S3Object s3o : getFilesToProcess()) {
             String key = s3o.key();
+            log.info("Processing file {}...", key);
 
             // if the file has a valid extension
             if (validateFileExtension(key)) {
@@ -84,9 +86,11 @@ public class ProcessRocaInputTask {
                             )
                             .map(job -> automationService.processAddQuantity(job))
                             .toList();
+                    log.info("Processed {} quantity updates", jobs.size());
 
                     // write the jobs out to a results file with the same name
                     String filename = "output/"+key.substring(key.lastIndexOf("/")+1, key.lastIndexOf(".csv"))+"_OUTPUT.csv";
+                    log.info("Writing output file {}", filename);
                     bcintS3Client.putObject(r -> r.bucket(bucketName).key(filename), RequestBody.fromString(
                         writeJobHeaderDelimitedLine() +
                             jobs.stream().map(it -> writeJobToDelimitedLine(it))
@@ -94,6 +98,7 @@ public class ProcessRocaInputTask {
                     ));
 
                     // move the file to the processed 'dir'
+                    log.info("Moving input file to processed/");
                     bcintS3Client.copyObject(r -> r.sourceBucket(bucketName)
                             .sourceKey(key)
                             .destinationBucket(bucketName)
@@ -102,7 +107,7 @@ public class ProcessRocaInputTask {
                     bcintS3Client.deleteObject(r -> r.bucket(bucketName).key(key));
 
                 } catch (Exception e) {
-                    rollbar.error(e, "An error occurred processing file for key " + key + ".");
+                    log.error("An error occurred processing file for key {}.", key, e);
                     continue;
                 }
             }
@@ -130,7 +135,7 @@ public class ProcessRocaInputTask {
     private boolean validateFileExtension(String key) {
         boolean valid = key.toLowerCase().endsWith(".csv");
         if (!valid){
-            rollbar.error("File with key " + key + "is not a csv file. It will not process. Verify and replace the file to try again. Ensure the old one is deleted.");
+            log.error("File with key {} is not a csv file. It will not process. Verify and replace the file to try again. Ensure the old one is deleted.", key);
         }
         return valid;
     }
