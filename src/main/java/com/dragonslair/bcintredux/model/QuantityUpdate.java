@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
-public class AddQuantityJob {
+public class QuantityUpdate {
     private String scryfallId;
     private String targetSku;
     private String cardName;

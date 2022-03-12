@@ -12,6 +12,10 @@ public class UpdatePricesTask {
     private MtgAutomationService automationService;
 
     public void runTask() {
+        // get all products in stock
 
+        // flat map and filter down to in stock variants
+
+        // update each variant
     }
 }

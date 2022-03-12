@@ -1,5 +1,6 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
+import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiErrorResponse;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiResponse;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -85,5 +87,20 @@ public class BigCommerceService {
                 .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Variant>>(){})
                 .block()
                 .getData();
+    }
+
+    public List<Product> getInStockMtgSingles() {
+        return null;
+    }
+
+    public List<Product> searchProducts(MultiValueMap<String, String> params) {
+        webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("catalog/products")
+                        .queryParams(params)
+                        .build());
+
+
+        return null;
     }
 }

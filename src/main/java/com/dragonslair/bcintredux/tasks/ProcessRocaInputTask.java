@@ -1,7 +1,7 @@
 package com.dragonslair.bcintredux.tasks;
 
 import com.dragonslair.bcintredux.enums.Condition;
-import com.dragonslair.bcintredux.model.AddQuantityJob;
+import com.dragonslair.bcintredux.model.QuantityUpdate;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,23 +68,15 @@ public class ProcessRocaInputTask {
                     final int quantityIndex = headersToIndexes.get(QUANTITY_KEY);
                     final int conditionIndex = headersToIndexes.get(CONDITION_KEY);
                     final int foilIndex = headersToIndexes.get(FOIL_KEY);
-                    final int nameIndex = headersToIndexes.get(CARD_NAME_KEY);
-                    final int setIndex = headersToIndexes.get(SET_NAME_KEY);
-                    final int numberIndex = headersToIndexes.get(COLLECTOR_NUMBER_KEY);
 
                     // get a list of jobs to process and process them
-                    List<AddQuantityJob> jobs = reader.lines()
+                    List<QuantityUpdate> jobs = reader.lines()
                             .map(l -> Arrays.asList(l.split(regexToSplit)))
-                            .map(fields -> new AddQuantityJob()
-                                    .setScryfallId(fields.get(scryfallIndex))
-                                    .setQuantityToAdd(parseQuantityFromLine(fields.get(quantityIndex)))
-                                    .setCondition(parseConditionFromLine(fields.get(conditionIndex)))
-                                    .setFoilInHand(Boolean.parseBoolean(fields.get(foilIndex)))
-                                    .setCardName(fields.get(nameIndex))
-                                    .setSet(fields.get(setIndex))
-                                    .setCollectorNumber(fields.get(numberIndex))
-                            )
-                            .map(job -> automationService.processAddQuantity(job))
+                            .map(fields -> automationService.addQuantityToVariant(
+                                    fields.get(scryfallIndex),
+                                    parseQuantityFromLine(fields.get(quantityIndex)),
+                                    parseConditionFromLine(fields.get(conditionIndex)),
+                                    Boolean.parseBoolean(fields.get(foilIndex))))
                             .toList();
                     log.info("Processed {} quantity updates", jobs.size());
 
@@ -214,7 +206,7 @@ public class ProcessRocaInputTask {
         }
     }
 
-    private String writeJobToDelimitedLine(AddQuantityJob aqJob) {
+    private String writeJobToDelimitedLine(QuantityUpdate aqJob) {
         return new StringBuilder()
                 .append(aqJob.getCardName()).append(",")
                 .append(aqJob.getSet()).append(",")
