@@ -1,5 +1,6 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
+import com.dragonslair.bcintredux.bigcommerce.dto.Metafield;
 import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiErrorResponse;
@@ -9,11 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -89,18 +95,68 @@ public class BigCommerceService {
                 .getData();
     }
 
-    public List<Product> getInStockMtgSingles() {
-        return null;
+    public List<Product> getInStockProductsForCategoryId(int categoryId) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("categories:in", Integer.toString(categoryId));
+        params.add("inventory_level:greater", "0");
+        params.add("include", "variants");
+
+        return searchProducts(params);
     }
 
     public List<Product> searchProducts(MultiValueMap<String, String> params) {
-        webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("catalog/products")
-                        .queryParams(params)
-                        .build());
+        String uri = UriComponentsBuilder.fromPath("catalog/products")
+                .queryParams(params).toUriString();
 
+        return getProducts(uri).expand(response -> {
+            String next = response.getMeta().getPagination().getLinks().getNext();
 
-        return null;
+            if (response.getMeta().getPagination().getLinks().getNext() == null) {
+                return Mono.empty();
+            }
+            return getProducts(next);
+        }).flatMap(response -> Flux.fromIterable(response.getData()))
+                .collectList()
+                .block();
+    }
+
+    public Mono<BcApiResponse<List<Product>>> getProducts(String uri) {
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error getting products with uri "
+                                        + uri
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                )
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<List<Product>>>(){});
+    }
+
+    public List<Metafield> getAllProductMetafields(int productId) {
+        return webClient.get()
+                .uri(uri -> uri.path("catalog/products/{product_id}/metafields")
+                        .build(productId))
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error getting metafields for product with id "
+                                        + productId
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                ).bodyToMono(new ParameterizedTypeReference<BcApiResponse<List<Metafield>>>() {
+                }).block()
+                .getData();
+    }
+
+    public Map<String, String> getProductMetafieldMap(int productId) {
+        return getAllProductMetafields(productId)
+                .stream()
+                .collect(Collectors.toMap(Metafield::getKey, Metafield::getValue));
     }
 }

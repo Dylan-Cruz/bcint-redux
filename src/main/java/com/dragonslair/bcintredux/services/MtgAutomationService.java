@@ -4,6 +4,7 @@ import com.dragonslair.bcintredux.bigcommerce.BigCommerceService;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.enums.OperationStatus;
+import com.dragonslair.bcintredux.enums.ProductMetafieldKeys;
 import com.dragonslair.bcintredux.model.PriceUpdate;
 import com.dragonslair.bcintredux.model.QuantityUpdate;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
@@ -36,17 +37,32 @@ public class MtgAutomationService {
 
         try {
             // get the scryfall id from the meta fields
+            String scryfallId = bcService.getProductMetafieldMap(variant.getProductId())
+                    .get(ProductMetafieldKeys.SCRYFALLID.name());
 
             // get the card from scryfall
+            ScryfallCard card = sfService.getCardById(scryfallId);
 
             // get the new price
+            String variantSku = variant.getSku();
+            boolean foilInHand = variantSku.charAt(variantSku.length() - 3) == 'F';
+            Condition condition = Condition.valueOf(variantSku.substring(variantSku.length()-2).toUpperCase());
+            double scryfallPrice = foilInHand ? card.getPrices().getUsdFoil() : card.getPrices().getUsd();
+            double newPrice = priceSuggestor.getPriceSuggestion(foilInHand, card.getRarity(), condition, scryfallPrice);
 
             // push a patch to bigcommerce
+            Variant patchedVariant = bcService.updateVariant(
+                    variant.getProductId(),
+                    variant.getId(),
+                    variantSku,
+                    new Variant().setPrice(newPrice));
 
+            log.info("Price updated on variant with sku: {} from ${} to ${}", variantSku, variant.getPrice(), patchedVariant.getPrice());
             pu.setStatus(OperationStatus.COMPLETED);
         } catch (RuntimeException re) {
             pu.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
+            log.error("Error updating price on variant with sku {}", variant.getSku());
         }
 
         return pu;

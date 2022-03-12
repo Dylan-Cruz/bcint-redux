@@ -36,9 +36,6 @@ public class ProcessRocaInputTask {
 
     // constants
     private final static String regexToSplit = "(?!\\B\"[^\"]*),(?![^\"]*\"\\B)";
-    private final static String SET_NAME_KEY = "Set Name";
-    private final static String CARD_NAME_KEY = "Product Name";
-    private final static String COLLECTOR_NUMBER_KEY = "Number";
     private final static String CONDITION_KEY = "Condition";
     private final static String QUANTITY_KEY = "Add to Quantity";
     private final static String SCRYFALL_ID_KEY = "Scryfall Id";
