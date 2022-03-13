@@ -13,12 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,32 +111,40 @@ public class BigCommerceService {
         String uri = UriComponentsBuilder.fromPath("catalog/products")
                 .queryParams(params).toUriString();
 
-        return getProducts(uri).expand(response -> {
+        return getProducts(uriBuilder -> uriBuilder
+                .path("catalog/products")
+                .queryParams(params)
+                .build()
+        ).expand(response -> {
             String next = response.getMeta().getPagination().getLinks().getNext();
 
             if (response.getMeta().getPagination().getLinks().getNext() == null) {
                 return Mono.empty();
             }
-            return getProducts(next);
+            return getProducts(uriBuilder -> uriBuilder
+                    .path("catalog/products")
+                    .path(next)
+                    .build());
         }).flatMap(response -> Flux.fromIterable(response.getData()))
                 .collectList()
                 .block();
     }
 
-    public Mono<BcApiResponse<List<Product>>> getProducts(String uri) {
+    public Mono<BcApiResponse<List<Product>>> getProducts(Function<UriBuilder, URI> uriFunction) {
         return webClient.get()
-                .uri(uri)
+                .uri(uriFunction)
                 .retrieve()
                 .onStatus(HttpStatus::isError, result ->
                         result.bodyToMono(BcApiErrorResponse.class).flatMap(
                                 bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error getting products with uri "
-                                        + uri
+                                        + uriFunction
                                         + " "
                                         + bcApiErrorResponse.toString())
                                 )
                         )
                 )
-                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<List<Product>>>(){});
+                .bodyToMono(new ParameterizedTypeReference<>() {
+                });
     }
 
     public List<Metafield> getAllProductMetafields(int productId) {

@@ -133,6 +133,7 @@ public class MtgAutomationService {
         } catch (RuntimeException re) {
             qu.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
+            log.error("Error updating quantity on variant with scryfallId: {} sku: {}", scryfallId, qu.getTargetSku(), re);
         }
 
         return qu;
