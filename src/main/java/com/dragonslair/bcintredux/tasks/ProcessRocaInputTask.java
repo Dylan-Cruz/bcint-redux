@@ -95,6 +95,7 @@ public class ProcessRocaInputTask {
                     );
                     bcintS3Client.deleteObject(r -> r.bucket(bucketName).key(key));
 
+                    log.info("Processing complete for file {}", key);
                 } catch (Exception e) {
                     log.error("An error occurred processing file for key {}.", key, e);
                     continue;

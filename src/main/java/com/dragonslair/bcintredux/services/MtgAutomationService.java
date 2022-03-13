@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
+
 
 @Slf4j
 @Service
@@ -39,25 +41,41 @@ public class MtgAutomationService {
             // get the scryfall id from the meta fields
             String scryfallId = bcService.getProductMetafieldMap(variant.getProductId())
                     .get(ProductMetafieldKeys.SCRYFALLID.name());
+            pu.setScryfallId(scryfallId);
 
             // get the card from scryfall
             ScryfallCard card = sfService.getCardById(scryfallId);
+            pu.setCardName(card.getName())
+                    .setSet(card.getSetName())
+                    .setCollectorNumber(card.getCollectorNumber());
 
             // get the new price
             String variantSku = variant.getSku();
             boolean foilInHand = variantSku.charAt(variantSku.length() - 3) == 'F';
             Condition condition = Condition.valueOf(variantSku.substring(variantSku.length()-2).toUpperCase());
+            double oldPrice = variant.getPrice();
             double scryfallPrice = foilInHand ? card.getPrices().getUsdFoil() : card.getPrices().getUsd();
             double newPrice = priceSuggestor.getPriceSuggestion(foilInHand, card.getRarity(), condition, scryfallPrice);
 
-            // push a patch to bigcommerce
-            Variant patchedVariant = bcService.updateVariant(
-                    variant.getProductId(),
-                    variant.getId(),
-                    variantSku,
-                    new Variant().setPrice(newPrice));
+            if (oldPrice != newPrice) {
+                // push a patch to bigcommerce
+                Variant patchedVariant = bcService.updateVariant(
+                        variant.getProductId(),
+                        variant.getId(),
+                        variantSku,
+                        new Variant().setPrice(newPrice));
 
-            log.info("Price updated on variant with sku: {} from ${} to ${}", variantSku, variant.getPrice(), patchedVariant.getPrice());
+                pu.setEndingPrice(patchedVariant.getPrice());
+
+                log.info("Price updated on variant with sku: {} from ${} to ${}",
+                        variantSku,
+                        NumberFormat.getCurrencyInstance().format(variant.getPrice()),
+                        NumberFormat.getCurrencyInstance().format(patchedVariant.getPrice()));
+            } else {
+                pu.setMessage("No update needed.");
+                return null;
+            }
+
             pu.setStatus(OperationStatus.COMPLETED);
         } catch (RuntimeException re) {
             pu.setMessage(re.getMessage())

@@ -1,7 +1,9 @@
-package com.dragonslair.bcintredux.enums;
+package com.dragonslair.bcintredux.scryfall.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 public enum Rarity {
     @JsonProperty("common")
     COMMON("Common"),
@@ -18,9 +20,5 @@ public enum Rarity {
 
     private Rarity(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 }

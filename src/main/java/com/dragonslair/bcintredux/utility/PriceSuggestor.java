@@ -1,7 +1,7 @@
 package com.dragonslair.bcintredux.utility;
 
 import com.dragonslair.bcintredux.enums.Condition;
-import com.dragonslair.bcintredux.enums.Rarity;
+import com.dragonslair.bcintredux.scryfall.enums.Rarity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

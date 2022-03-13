@@ -1,8 +1,9 @@
 package com.dragonslair.bcintredux.scryfall.dto;
 
 
-import com.dragonslair.bcintredux.enums.Layout;
-import com.dragonslair.bcintredux.enums.Rarity;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
+import com.dragonslair.bcintredux.scryfall.enums.Layout;
+import com.dragonslair.bcintredux.scryfall.enums.Rarity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -23,6 +24,7 @@ public class ScryfallCard {
     private String scryfallUri;
     private boolean foil;
     private boolean nonfoil;
+    private List<Finish> finishes;
     private Layout layout;
 
     // card fields

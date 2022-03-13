@@ -1,4 +1,4 @@
-package com.dragonslair.bcintredux.enums;
+package com.dragonslair.bcintredux.scryfall.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,7 +21,7 @@ public enum Layout {
     augment,
     host,
     art_series,
-    double_sided,
+    reversable_card,
     @JsonProperty("class")
     class_enchantment
 }

@@ -13,4 +13,6 @@ import lombok.experimental.Accessors;
 public class ScryfallPrices {
     private Double usd;
     private Double usdFoil;
+    private Double usdGlossy;
+    private Double usdEtched;
 }

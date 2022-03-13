@@ -1,5 +1,6 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
+import com.dragonslair.bcintredux.bigcommerce.dto.Category;
 import com.dragonslair.bcintredux.bigcommerce.dto.Metafield;
 import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
@@ -14,7 +15,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -98,19 +98,18 @@ public class BigCommerceService {
                 .getData();
     }
 
-    public List<Product> getInStockProductsForCategoryId(int categoryId) {
+    public List<Product> getVisibleInStockProductsForCategory(int categoryId) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("categories:in", Integer.toString(categoryId));
         params.add("inventory_level:greater", "0");
         params.add("include", "variants");
+        params.add("is_visible", "true");
+        params.add("limit", "250");
 
         return searchProducts(params);
     }
 
     public List<Product> searchProducts(MultiValueMap<String, String> params) {
-        String uri = UriComponentsBuilder.fromPath("catalog/products")
-                .queryParams(params).toUriString();
-
         return getProducts(uriBuilder -> uriBuilder
                 .path("catalog/products")
                 .queryParams(params)
@@ -118,12 +117,12 @@ public class BigCommerceService {
         ).expand(response -> {
             String next = response.getMeta().getPagination().getLinks().getNext();
 
-            if (response.getMeta().getPagination().getLinks().getNext() == null) {
+            if (next == null) {
                 return Mono.empty();
             }
             return getProducts(uriBuilder -> uriBuilder
                     .path("catalog/products")
-                    .path(next)
+                    .query(next.substring(1))
                     .build());
         }).flatMap(response -> Flux.fromIterable(response.getData()))
                 .collectList()
@@ -169,5 +168,46 @@ public class BigCommerceService {
         return getAllProductMetafields(productId)
                 .stream()
                 .collect(Collectors.toMap(Metafield::getKey, Metafield::getValue));
+    }
+
+    public List<Category> getSubCategoriesForParent(int categoryId) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("parent_id", Integer.toString(categoryId));
+        params.add("limit", "250");
+        return searchCategories(params);
+    }
+
+    public List<Category> searchCategories(MultiValueMap<String, String> params) {
+        return getCategories(uriBuilder -> uriBuilder.path("catalog/categories")
+                .queryParams(params)
+                .build()
+        ).expand(response -> {
+            String next = response.getMeta().getPagination().getLinks().getNext();
+
+            if (next == null) {
+                return Mono.empty();
+            }
+            return getCategories((uriBuilder -> uriBuilder
+                    .path("catalog/categories")
+                    .query(next.substring(1))
+                    .build()));
+        }).flatMap(response -> Flux.fromIterable(response.getData()))
+                .collectList()
+                .block();
+    }
+
+    public Mono<BcApiResponse<List<Category>>> getCategories(Function<UriBuilder, URI> uriFunction) {
+        return webClient.get()
+                .uri(uriFunction)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error getting categories with uri"
+                                        + uriFunction
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                ).bodyToMono(new ParameterizedTypeReference<BcApiResponse<List<Category>>>() {
+                });
     }
 }

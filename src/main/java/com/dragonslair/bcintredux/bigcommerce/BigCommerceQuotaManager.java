@@ -26,10 +26,18 @@ public class BigCommerceQuotaManager {
     }
 
     public void updateValues(HttpHeaders headers) {
-        requestsRemaining.set(Integer.parseInt(headers.get(requestsRemainingKey).get(0)));
-        timeToResetMs.set(Integer.parseInt(headers.get(timeToResetMsKey).get(0)));
-        requestsQuota.set(Integer.parseInt(headers.get(requestsQuotaKey).get(0)));
-        timeInWindowMs.set(Integer.parseInt(headers.get(timeInWindowKey).get(0)));
+        if (headers.containsKey(requestsRemainingKey)) {
+            requestsRemaining.set(Integer.parseInt(headers.get(requestsRemainingKey).get(0)));
+        }
+        if (headers.containsKey(timeToResetMsKey)) {
+            timeToResetMs.set(Integer.parseInt(headers.get(timeToResetMsKey).get(0)));
+        }
+        if (headers.containsKey(requestsQuotaKey)) {
+            requestsQuota.set(Integer.parseInt(headers.get(requestsQuotaKey).get(0)));
+        }
+        if (headers.containsKey(timeInWindowKey)) {
+            timeInWindowMs.set(Integer.parseInt(headers.get(timeInWindowKey).get(0)));
+        }
     }
 
     public void blockForQuota(ClientRequest request) {
