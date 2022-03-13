@@ -30,6 +30,9 @@ public class MtgAutomationService {
     @Autowired
     private PriceSuggestor priceSuggestor;
 
+    public void listProduct() {
+
+    }
 
     public PriceUpdate updatePriceOfVariant(Variant variant) {
         // make the price update to return
