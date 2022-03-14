@@ -64,7 +64,7 @@ public class ScryfallService {
                 .block();
     }
 
-    public Mono<ScryfallResponse<List<ScryfallCard>>> getCards(Function<UriBuilder, URI> uriFunction) {
+    private Mono<ScryfallResponse<List<ScryfallCard>>> getCards(Function<UriBuilder, URI> uriFunction) {
         return webClient.get()
                 .uri(uriFunction)
                 .retrieve()
