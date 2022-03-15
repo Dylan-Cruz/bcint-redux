@@ -8,14 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -47,14 +44,8 @@ public class ScryfallService {
     }
 
     // search cards
-    public List<ScryfallCard> searchCards(MultiValueMap<String, String> params) {
-        URI uri = UriComponentsBuilder
-                .fromUriString("https://api.scryfall.com/cards/search")
-                .queryParams(params)
-                .build()
-                .toUri();
-
-        return getCards(uri.toString())
+    public List<ScryfallCard> getCardsForSearchUri(String uri) {
+        return getCards(UriUtils.decode(uri, StandardCharsets.UTF_8))
                 .expand(response -> {
                     String next = response.getNextPage();
                     if (next == null) {

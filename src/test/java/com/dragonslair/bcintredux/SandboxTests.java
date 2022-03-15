@@ -9,8 +9,6 @@ import com.dragonslair.bcintredux.tasks.UpdatePricesTask;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 
@@ -34,9 +32,7 @@ public class SandboxTests {
 
     @Test
     public void testSearchCards() {
-        MultiValueMap<String, String> args = new LinkedMultiValueMap<>();
-        args.add("q", "e:war");
-        List<ScryfallCard> cards = scryfallService.searchCards(args);
+        List<ScryfallCard> cards = scryfallService.getCardsForSearchUri("https://api.scryfall.com/cards/search?order=set&q=e%3Awar&unique=prints");
         System.out.println(cards.size());
     }
 
