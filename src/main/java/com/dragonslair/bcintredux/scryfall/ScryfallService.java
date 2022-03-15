@@ -45,13 +45,13 @@ public class ScryfallService {
 
     // search cards
     public List<ScryfallCard> getCardsForSearchUri(String uri) {
-        return getCards(UriUtils.decode(uri, StandardCharsets.UTF_8))
+        return getCards(uri)
                 .expand(response -> {
                     String next = response.getNextPage();
                     if (next == null) {
                         return Mono.empty();
                     }
-                    return getCards(UriUtils.decode(next, StandardCharsets.UTF_8));
+                    return getCards(next);
                 }).flatMap(response -> Flux.fromIterable(response.getData()))
                 .collectList()
                 .block();
@@ -59,7 +59,7 @@ public class ScryfallService {
 
     private Mono<ScryfallResponse<List<ScryfallCard>>> getCards(String uri) {
         return webClient.get()
-                .uri(uri)
+                .uri(UriUtils.decode(uri, StandardCharsets.UTF_8))
                 .retrieve()
                 .onStatus(HttpStatus::isError, result ->
                         Mono.error(new ScryfallServiceException("Error calling scryfall uri: " + uri + " status code: " + result.statusCode()))

@@ -75,7 +75,6 @@ public class BigCommerceService {
         }
     }
 
-
     public Variant updateVariant(int productId, int variantId, String variantSku, Variant patch) {
         return webClient.put()
                 .uri(uriBuilder -> uriBuilder
@@ -107,6 +106,12 @@ public class BigCommerceService {
         params.add("limit", "250");
 
         return searchProducts(params);
+    }
+
+    public List<Product> getProductsForCategoryId(int categoryId) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("", Integer.toString(categoryId));
+        return searchProducts()
     }
 
     public List<Product> searchProducts(MultiValueMap<String, String> params) {
@@ -177,6 +182,12 @@ public class BigCommerceService {
         return searchCategories(params);
     }
 
+    public Category getCategoryByName(String name) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("name", name);
+        return searchCategories(params).stream().findFirst().orElse(null);
+    }
+
     public List<Category> searchCategories(MultiValueMap<String, String> params) {
         return getCategories(uriBuilder -> uriBuilder.path("catalog/categories")
                 .queryParams(params)
@@ -209,5 +220,24 @@ public class BigCommerceService {
                         )
                 ).bodyToMono(new ParameterizedTypeReference<BcApiResponse<List<Category>>>() {
                 });
+    }
+
+    public Category createCategory(Category c) {
+        return webClient.post()
+                .uri("/categories")
+                .body(Mono.just(c), Category.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error creating category "
+                                        + c.getName()
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                )
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Category>>(){})
+                .block()
+                .getData();
     }
 }
