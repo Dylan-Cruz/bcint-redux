@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,10 @@ public class ScryfallWebClientConfig {
         return WebClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .exchangeStrategies(ExchangeStrategies
+                        .builder()
+                        .codecs(c -> c.defaultCodecs()
+                                .maxInMemorySize(1 * 1064 * 1064)).build())
                 .build();
     }
 

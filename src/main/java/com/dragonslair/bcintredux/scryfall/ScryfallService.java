@@ -10,13 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.function.Function;
 
 @Service
 public class ScryfallService {
@@ -47,29 +48,30 @@ public class ScryfallService {
 
     // search cards
     public List<ScryfallCard> searchCards(MultiValueMap<String, String> params) {
-        return getCards(uriBuilder -> uriBuilder
-                .path("/cards/search")
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://api.scryfall.com/cards/search")
                 .queryParams(params)
-                .build())
+                .build()
+                .toUri();
+
+        return getCards(uri.toString())
                 .expand(response -> {
                     String next = response.getNextPage();
                     if (next == null) {
                         return Mono.empty();
                     }
-                    return getCards(uriBuilder -> uriBuilder.replacePath(next.substring(0, next.indexOf("?")))
-                            .replaceQuery(next.substring(next.lastIndexOf("?")+1))
-                            .build());
+                    return getCards(UriUtils.decode(next, StandardCharsets.UTF_8));
                 }).flatMap(response -> Flux.fromIterable(response.getData()))
                 .collectList()
                 .block();
     }
 
-    private Mono<ScryfallResponse<List<ScryfallCard>>> getCards(Function<UriBuilder, URI> uriFunction) {
+    private Mono<ScryfallResponse<List<ScryfallCard>>> getCards(String uri) {
         return webClient.get()
-                .uri(uriFunction)
+                .uri(uri)
                 .retrieve()
                 .onStatus(HttpStatus::isError, result ->
-                        Mono.error(new ScryfallServiceException("Error calling scryfall /cards/search status code: " + result.statusCode()))
+                        Mono.error(new ScryfallServiceException("Error calling scryfall uri: " + uri + " status code: " + result.statusCode()))
                 ).bodyToMono(new ParameterizedTypeReference<>() {
                 });
     }
