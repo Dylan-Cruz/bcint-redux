@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -46,21 +46,36 @@ public class ListProductsTask {
 
     private List<ListingAttempt> listSet(ScryfallSet set) {
         try {
-            // create the category if it doesn't exist
+            // get the category and it's products or create it
             Category category = bcService.getCategoryByName(set.getName());
+            List<Product> existingProducts;
             if (category == null) {
                 log.debug("Creating category for set {}", set.getName());
                 category = bcService.createCategory(buildCategoryFromSet(set));
+                existingProducts = new ArrayList<>();
+            } else {
+                existingProducts = bcService.getProductsForCategoryId(category.getId())
+
             }
+
+            // identify the listings we have to make
+            List<String> existingSkus = existingProducts.stream()
+                    .map(Product::getSku)
+                    .collect(Collectors.toList());
+            existingSkus.sort(String::compareTo);
+
+            Map<String, ListingAttempt> skusToListingAttempts = sfService.getCardsForSearchUri(set.getSearchUri())
+                            .stream()
+                                    .collect(Collectors.toMap(c -> ))
 
             log.info("Listing products for set {}", set.getName());
 
-            // get all the existing products for this set
-            List<Product> existing = bcService.get
 
             // get a list of missing skus
 
             // for each missing sku, make the product listing
+
+
         } catch (RuntimeException re) {
             log.error("Unexpected error occurred listing cards for set {}", set.getName(), re);
         }
