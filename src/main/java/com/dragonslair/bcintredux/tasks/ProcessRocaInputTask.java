@@ -82,7 +82,7 @@ public class ProcessRocaInputTask {
                     log.info("Writing output file {}", filename);
                     bcintS3Client.putObject(r -> r.bucket(bucketName).key(filename), RequestBody.fromString(
                         writeJobHeaderDelimitedLine() +
-                            jobs.stream().map(it -> writeJobToDelimitedLine(it))
+                            jobs.stream().map(this::writeJobToDelimitedLine)
                                     .collect(Collectors.joining("\n"))
                     ));
 
@@ -98,7 +98,6 @@ public class ProcessRocaInputTask {
                     log.info("Processing complete for file {}", key);
                 } catch (Exception e) {
                     log.error("An error occurred processing file for key {}.", key, e);
-                    continue;
                 }
             }
         }
@@ -139,9 +138,9 @@ public class ProcessRocaInputTask {
     }
 
     /** Runs various checks on the file and header row throwing a runtime exception
-     * if an issue is present. Otherwise it returns a map of header field names
+     * if an issue is present. Otherwise, it returns a map of header field names
      * to their respective indexes in the file
-     * @param headers
+     * @param headers string representing the line of csv headers from the roca input file
      * @return Map of column names to their position
      */
     private Map<String, Integer> validateHeader(String headers) {
@@ -197,7 +196,7 @@ public class ProcessRocaInputTask {
 
     // utility method to parse condition from the line
     private Condition parseConditionFromLine(String s) {
-        if (s == null || s.isEmpty() || s.isEmpty()) {
+        if (s == null || s.isBlank() || s.isEmpty()) {
             return null;
         } else {
             return s.equalsIgnoreCase("Near Mint") ? Condition.NM : Condition.PL;
@@ -205,41 +204,37 @@ public class ProcessRocaInputTask {
     }
 
     private String writeJobToDelimitedLine(QuantityUpdate aqJob) {
-        return new StringBuilder()
-                .append(aqJob.getCardName()).append(",")
-                .append(aqJob.getSet()).append(",")
-                .append(aqJob.getCollectorNumber()).append(",")
-                .append(aqJob.getScryfallId()).append(",")
-                .append(aqJob.getCondition().getLongForm()).append(",")
-                .append(aqJob.isFoilInHand()).append(",")
-                .append(aqJob.getTargetSku()).append(",")
-                .append(aqJob.getStatus().toString()).append(",")
-                .append(aqJob.getMessage()).append(",")
-                .append(aqJob.getStartingQuantity()).append(",")
-                .append(aqJob.getQuantityToAdd()).append(",")
-                .append(aqJob.getEndingQuantity()).append(",")
-                .append(aqJob.getStartingPrice()).append(",")
-                .append(aqJob.getEndingPrice())
-                .toString();
+        return aqJob.getCardName() + "," +
+                aqJob.getSet() + "," +
+                aqJob.getCollectorNumber() + "," +
+                aqJob.getScryfallId() + "," +
+                aqJob.getCondition().getLongForm() + "," +
+                aqJob.isFoilInHand() + "," +
+                aqJob.getTargetSku() + "," +
+                aqJob.getStatus().toString() + "," +
+                aqJob.getMessage() + "," +
+                aqJob.getStartingQuantity() + "," +
+                aqJob.getQuantityToAdd() + "," +
+                aqJob.getEndingQuantity() + "," +
+                aqJob.getStartingPrice() + "," +
+                aqJob.getEndingPrice();
     }
 
     private String writeJobHeaderDelimitedLine() {
-        return new StringBuilder()
-                .append("Card Name,")
-                .append("Set Name,")
-                .append("Number,")
-                .append("Scryfall Id,")
-                .append("Condition,")
-                .append("Foil In Hand,")
-                .append("Target SKU,")
-                .append("Status,")
-                .append("Message,")
-                .append("Starting Quantity,")
-                .append("Quantity To Add,")
-                .append("Ending Quantity,")
-                .append("Starting Price,")
-                .append("Ending Price")
-                .append("\n")
-                .toString();
+        return "Card Name," +
+                "Set Name," +
+                "Number," +
+                "Scryfall Id," +
+                "Condition," +
+                "Foil In Hand," +
+                "Target SKU," +
+                "Status," +
+                "Message," +
+                "Starting Quantity," +
+                "Quantity To Add," +
+                "Ending Quantity," +
+                "Starting Price," +
+                "Ending Price" +
+                "\n";
     }
 }

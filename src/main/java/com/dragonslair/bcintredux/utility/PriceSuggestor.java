@@ -1,6 +1,7 @@
 package com.dragonslair.bcintredux.utility;
 
 import com.dragonslair.bcintredux.enums.Condition;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.scryfall.enums.Rarity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,15 +20,17 @@ public class PriceSuggestor {
     private Map<String, Double> minPriceMapNormal;
     @Value("#{${dragonslair.mtg.minimumPriceFoil}}")
     private Map<String, Double> minPriceMapFoil;
+    @Value("#{${dragonslair.mtg.minimumPriceEtched}}")
+    private Map<String, Double> minPriceMapEtched;
 
-    public double getPriceSuggestion(boolean foilInHand, Rarity rarity, Condition condition, double price) {
+    public double getPriceSuggestion(Finish finishInHand, Rarity rarity, Condition condition, double price) {
         double ourPrice;
 
         // apply our markup/markdown
         ourPrice = condition == Condition.NM ? price * (1 + singlesMarkup) : price * (1 + singlesMarkup - playedMarkdown);
 
         // apply our minimum and round
-        ourPrice = applyMinimum(foilInHand, rarity, condition, ourPrice);
+        ourPrice = applyMinimum(finishInHand, rarity, condition, ourPrice);
 
         return ourPrice;
     }
@@ -43,9 +46,13 @@ public class PriceSuggestor {
     }
 
 
-    private double applyMinimum(boolean foilInHand, Rarity rarity, Condition condition, double price) {
+    private double applyMinimum(Finish finishInHand, Rarity rarity, Condition condition, double price) {
         String cardRarityName = rarity.getName();
-        Map<String, Double> mapToUse = (foilInHand ? minPriceMapFoil : minPriceMapNormal);
+        Map<String, Double> mapToUse = switch(finishInHand) {
+            case nonfoil -> minPriceMapNormal;
+            case foil -> minPriceMapFoil;
+            default -> minPriceMapEtched;
+        };
         double minimumPrice = mapToUse.get(cardRarityName);
 
         if (condition == Condition.NM) {

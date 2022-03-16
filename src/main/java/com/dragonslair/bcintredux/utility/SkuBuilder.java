@@ -2,6 +2,7 @@ package com.dragonslair.bcintredux.utility;
 
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -12,34 +13,34 @@ public class SkuBuilder {
      * concatenation of set code, collector number, and r/f if regular or foil.
      * Additionally, it must be upper case.
      * @param card ScryfallCard object that backs the data for this listing
+     * @param finish
      * @return String concatenation of fields that make up the root product sku
      * @author dylan
      */
-    public static String getRootSku(ScryfallCard card, boolean foil) {
-        StringBuilder sb = new StringBuilder()
+    public static String getRootSku(ScryfallCard card, Finish finish) {
+        return new StringBuilder()
                 .append("MTGS")
                 .append(card.getSet())
                 .append(card.getCollectorNumber())
-                .append(foil?"F":"R");
-
-        log.debug("Generated sku: " + sb.toString());
-        return sb.toString().toUpperCase();
+                .append(finish.getName().substring(0, 1))
+                .toString()
+                .toUpperCase();
     }
 
     /**
      * Generates the variant sku of the mtg sub product. Sku is concatenation of
      * setCode, collectorNumber, foil, condition. Additionally, it must be upper case.
      * @param card
-     * @param foil
+     * @param finish
      * @param condition
      * @return Concatenation of fields that make up the variant sku of the sub product
      * @author dylan
      */
-    public static String getVariantSku(ScryfallCard card, boolean foil, Condition condition) {
-        StringBuilder sb = new StringBuilder()
-                .append(getRootSku(card, foil))
-                .append(condition.toString());
-        log.debug("Generated variant sku: " + sb.toString());
-        return sb.toString().toUpperCase();
+    public static String getVariantSku(ScryfallCard card, Finish finish, Condition condition) {
+        return new StringBuilder()
+                .append(getRootSku(card, finish))
+                .append(condition.toString())
+                .toString()
+                .toUpperCase();
     }
 }

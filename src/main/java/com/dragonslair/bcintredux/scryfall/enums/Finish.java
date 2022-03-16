@@ -10,10 +10,20 @@ public enum Finish {
     glossy("Glossy", "G");
 
     private String name;
-    private String skuValue;
+    private String skuCode;
 
-    private Finish(String name, String skuValue) {
+    private Finish(String name, String skuCode) {
         this.name = name;
-        this.skuValue = skuValue;
+        this.skuCode = skuCode;
+    }
+
+    public static Finish fromSkuCode(String skuCode) {
+        return switch (skuCode) {
+            case "F" -> foil;
+            case "R" -> nonfoil;
+            case "E" -> etched;
+            case "G" -> glossy;
+            default -> throw new IllegalArgumentException("No corresponding finish for variant sku " + skuCode);
+        };
     }
 }

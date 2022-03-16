@@ -9,6 +9,7 @@ import com.dragonslair.bcintredux.model.PriceUpdate;
 import com.dragonslair.bcintredux.model.QuantityUpdate;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.utility.PriceSuggestor;
 import com.dragonslair.bcintredux.utility.SkuBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -54,11 +55,11 @@ public class MtgAutomationService {
 
             // get the new price
             String variantSku = variant.getSku();
-            boolean foilInHand = variantSku.charAt(variantSku.length() - 3) == 'F';
+            Finish finishInHand = Finish.fromSkuCode(variantSku.substring(variantSku.length()-3, variantSku.length()-3));
             Condition condition = Condition.valueOf(variantSku.substring(variantSku.length()-2).toUpperCase());
             double oldPrice = variant.getPrice();
-            double scryfallPrice = foilInHand ? card.getPrices().getUsdFoil() : card.getPrices().getUsd();
-            double newPrice = priceSuggestor.getPriceSuggestion(foilInHand, card.getRarity(), condition, scryfallPrice);
+            double scryfallPrice = card.getPriceForFinish(finishInHand);
+            double newPrice = priceSuggestor.getPriceSuggestion(finishInHand, card.getRarity(), condition, scryfallPrice);
 
             if (oldPrice != newPrice) {
                 // push a patch to bigcommerce
@@ -94,7 +95,7 @@ public class MtgAutomationService {
      * incrementing quantity and updating the price.
      * @return aqJob
      */
-    public QuantityUpdate addQuantityToVariant(String scryfallId, int quantity, Condition condition, boolean foilInHand) {
+    public QuantityUpdate addQuantityToVariant(String scryfallId, int quantity, Condition condition, Finish finishInHand) {
         // make the job to return
         QuantityUpdate qu = new QuantityUpdate();
 
@@ -120,7 +121,7 @@ public class MtgAutomationService {
             qu.setCollectorNumber(card.getCollectorNumber());
 
             // generate the sku so we can query bigcommerce
-            String variantSku = SkuBuilder.getVariantSku(card, foilInHand, condition);
+            String variantSku = SkuBuilder.getVariantSku(card, finishInHand, condition);
             qu.setTargetSku(variantSku);
 
             // get the variant by sku
@@ -131,10 +132,10 @@ public class MtgAutomationService {
             // update the price and quantity
             int newQuantity = variant.getInventoryLevel() + quantity;
             double newPrice = priceSuggestor.getPriceSuggestion(
-                    foilInHand,
+                    finishInHand,
                     card.getRarity(),
                     condition,
-                    foilInHand ? card.getPrices().getUsdFoil() : card.getPrices().getUsd()
+                    card.getPriceForFinish(finishInHand)
             );
 
             Variant patch = new Variant()

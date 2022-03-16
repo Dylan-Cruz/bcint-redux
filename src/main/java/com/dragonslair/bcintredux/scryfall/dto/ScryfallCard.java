@@ -45,4 +45,13 @@ public class ScryfallCard {
 
     // print fields
     private LocalDate releasedAt;
+
+    public Double getPriceForFinish(Finish finish) {
+        return switch (finish) {
+            case foil -> prices.getUsdFoil();
+            case nonfoil -> prices.getUsd();
+            case etched -> prices.getUsdEtched();
+            case glossy -> prices.getUsdGlossy();
+        };
+    }
 }

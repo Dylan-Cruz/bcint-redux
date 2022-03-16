@@ -6,13 +6,18 @@ import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.enums.Categories;
 import com.dragonslair.bcintredux.model.ListingAttempt;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
+import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallSet;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
+import com.dragonslair.bcintredux.utility.SkuBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,33 +53,31 @@ public class ListProductsTask {
         try {
             // get the category and it's products or create it
             Category category = bcService.getCategoryByName(set.getName());
-            List<Product> existingProducts;
+            List<String> existingSkus;
             if (category == null) {
                 log.debug("Creating category for set {}", set.getName());
                 category = bcService.createCategory(buildCategoryFromSet(set));
-                existingProducts = new ArrayList<>();
+                existingSkus = new ArrayList<>();
             } else {
-                existingProducts = bcService.getProductsForCategoryId(category.getId())
+                existingSkus = bcService.getProductsForCategoryId(category.getId()).parallelStream()
+                        .map(Product::getSku)
+                        .collect(Collectors.toList());
+                existingSkus.sort(String::compareTo);
 
             }
 
-            // identify the listings we have to make
-            List<String> existingSkus = existingProducts.stream()
-                    .map(Product::getSku)
-                    .collect(Collectors.toList());
-            existingSkus.sort(String::compareTo);
+           // make the listings we need
+            List<ListingAttempt> listings = new ArrayList<>();
+            for (ScryfallCard card : sfService.getCardsForSearchUri(set.getSearchUri())) {
+                for (Finish finish : card.getFinishes()) {
+                    String rootSku = SkuBuilder.getRootSku(card, finish);
+                    if (Collections.binarySearch(existingSkus, rootSku, String::compareTo) < 0) {
+                        listings.add(new ListingAttempt(rootSku, card, finish));
+                    }
+                }
+            }
 
-            Map<String, ListingAttempt> skusToListingAttempts = sfService.getCardsForSearchUri(set.getSearchUri())
-                            .stream()
-                                    .collect(Collectors.toMap(c -> ))
-
-            log.info("Listing products for set {}", set.getName());
-
-
-            // get a list of missing skus
-
-            // for each missing sku, make the product listing
-
+            log.info("Listing {} products for set {}", listings.size(), set.getName());
 
         } catch (RuntimeException re) {
             log.error("Unexpected error occurred listing cards for set {}", set.getName(), re);
