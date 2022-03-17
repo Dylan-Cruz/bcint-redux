@@ -2,6 +2,7 @@ package com.dragonslair.bcintredux.tasks;
 
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.model.QuantityUpdate;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class ProcessRocaInputTask {
     private final static String QUANTITY_KEY = "Add to Quantity";
     private final static String SCRYFALL_ID_KEY = "Scryfall Id";
     private final static String FOIL_KEY = "Foil";
+    private final static String FINISH_KEY = "Finish";
 
 
     @Scheduled(cron="${dragonslair.mtg.processroca.schedule}")
@@ -64,7 +66,7 @@ public class ProcessRocaInputTask {
                     final int scryfallIndex = headersToIndexes.get(SCRYFALL_ID_KEY);
                     final int quantityIndex = headersToIndexes.get(QUANTITY_KEY);
                     final int conditionIndex = headersToIndexes.get(CONDITION_KEY);
-                    final int foilIndex = headersToIndexes.get(FOIL_KEY);
+                    final int finishIndex = headersToIndexes.get(FINISH_KEY);
 
                     // get a list of jobs to process and process them
                     List<QuantityUpdate> jobs = reader.lines()
@@ -73,7 +75,7 @@ public class ProcessRocaInputTask {
                                     fields.get(scryfallIndex),
                                     parseQuantityFromLine(fields.get(quantityIndex)),
                                     parseConditionFromLine(fields.get(conditionIndex)),
-                                    Boolean.parseBoolean(fields.get(foilIndex))))
+                                    Finish.valueOf(fields.get(finishIndex).toLowerCase())))
                             .toList();
                     log.info("Processed {} quantity updates", jobs.size());
 

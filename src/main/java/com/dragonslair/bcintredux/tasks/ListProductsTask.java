@@ -5,6 +5,7 @@ import com.dragonslair.bcintredux.bigcommerce.dto.Category;
 import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.enums.Categories;
 import com.dragonslair.bcintredux.model.ListingAttempt;
+import com.dragonslair.bcintredux.model.ListingAttemptRequest;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallSet;
@@ -48,7 +49,6 @@ public class ListProductsTask {
         }
     }
 
-
     private List<ListingAttempt> listSet(ScryfallSet set) {
         try {
             // get the category and it's products or create it
@@ -67,23 +67,23 @@ public class ListProductsTask {
             }
 
            // make the listings we need
-            List<ListingAttempt> listings = new ArrayList<>();
+            List<ListingAttemptRequest> listings = new ArrayList<>();
             for (ScryfallCard card : sfService.getCardsForSearchUri(set.getSearchUri())) {
                 for (Finish finish : card.getFinishes()) {
                     String rootSku = SkuBuilder.getRootSku(card, finish);
                     if (Collections.binarySearch(existingSkus, rootSku, String::compareTo) < 0) {
-                        listings.add(new ListingAttempt(rootSku, card, finish));
+                        listings.add(new ListingAttemptRequest(rootSku, card, finish, category.getId()));
                     }
                 }
             }
 
             log.info("Listing {} products for set {}", listings.size(), set.getName());
+            return listings.stream().map(mtgService::listProduct).collect(Collectors.toList());
 
         } catch (RuntimeException re) {
             log.error("Unexpected error occurred listing cards for set {}", set.getName(), re);
+            return Collections.emptyList();
         }
-
-        return Collections.emptyList();
     }
 
     private Category buildCategoryFromSet(ScryfallSet set) {

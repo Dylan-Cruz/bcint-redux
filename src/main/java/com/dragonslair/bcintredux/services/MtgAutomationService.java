@@ -5,6 +5,8 @@ import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.enums.OperationStatus;
 import com.dragonslair.bcintredux.enums.ProductMetafieldKeys;
+import com.dragonslair.bcintredux.model.ListingAttempt;
+import com.dragonslair.bcintredux.model.ListingAttemptRequest;
 import com.dragonslair.bcintredux.model.PriceUpdate;
 import com.dragonslair.bcintredux.model.QuantityUpdate;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
@@ -31,10 +33,24 @@ public class MtgAutomationService {
     @Autowired
     private PriceSuggestor priceSuggestor;
 
-    public void listProduct() {
+    public ListingAttempt listProduct(ListingAttemptRequest listingRequest) {
+        ListingAttempt listing = new ListingAttempt();
+        try {
 
+        } catch (RuntimeException re) {
+            listing.setMessage(re.getMessage())
+                    .setStatus(OperationStatus.ERRORED);
+            log.error("Error listing product with sku {}", listing.getSku(), re);
+        }
+
+        return listing;
     }
 
+    /**
+     * Updates the price of a variant
+     * @param variant
+     * @return
+     */
     public PriceUpdate updatePriceOfVariant(Variant variant) {
         // make the price update to return
         PriceUpdate pu = new PriceUpdate()
@@ -77,14 +93,13 @@ public class MtgAutomationService {
                         NumberFormat.getCurrencyInstance().format(patchedVariant.getPrice()));
             } else {
                 pu.setMessage("No update needed.");
-                return null;
             }
 
             pu.setStatus(OperationStatus.COMPLETED);
         } catch (RuntimeException re) {
             pu.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
-            log.error("Error updating price on variant with sku {}", variant.getSku());
+            log.error("Error updating price on variant with sku {}", variant.getSku(), re);
         }
 
         return pu;
