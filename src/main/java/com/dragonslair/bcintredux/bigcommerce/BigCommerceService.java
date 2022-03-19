@@ -1,12 +1,8 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
-import com.dragonslair.bcintredux.bigcommerce.dto.Category;
-import com.dragonslair.bcintredux.bigcommerce.dto.Metafield;
-import com.dragonslair.bcintredux.bigcommerce.dto.Product;
-import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
+import com.dragonslair.bcintredux.bigcommerce.dto.*;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiErrorResponse;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -25,7 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class BigCommerceService {
 
     private WebClient webClient;
@@ -110,8 +105,8 @@ public class BigCommerceService {
 
     public List<Product> getProductsForCategoryId(int categoryId) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("", Integer.toString(categoryId));
-        return searchProducts()
+        params.add("categories", Integer.toString(categoryId));
+        return searchProducts(params);
     }
 
     public List<Product> searchProducts(MultiValueMap<String, String> params) {
@@ -224,7 +219,7 @@ public class BigCommerceService {
 
     public Category createCategory(Category c) {
         return webClient.post()
-                .uri("/categories")
+                .uri("catalog/categories")
                 .body(Mono.just(c), Category.class)
                 .retrieve()
                 .onStatus(HttpStatus::isError, result ->
@@ -237,6 +232,99 @@ public class BigCommerceService {
                         )
                 )
                 .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Category>>(){})
+                .block()
+                .getData();
+    }
+
+    public Product createProduct(Product p) {
+        return webClient.post()
+                .uri("catalog/products")
+                .body(Mono.just(p), Product.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error creating product with sku "
+                                        + p.getSku()
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                )
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Product>>(){})
+                .block()
+                .getData();
+    }
+
+    public Product updateProduct(int productId, Product patch) {
+        return webClient.put()
+                .uri(uriBuilder -> uriBuilder.path("catalog/products/{productId}").build(productId))
+                .body(Mono.just(patch), Product.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error updating product with sku "
+                                        + patch.getSku()
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                )
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Product>>(){})
+                .block()
+                .getData();
+    }
+
+   public void deleteProduct(int productId) {
+        webClient.delete()
+                .uri(uriBuilder -> uriBuilder.path("catalog/products/{productId}").build(productId))
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error deleting product id "
+                                        + productId
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                ).toBodilessEntity().block();
+   }
+
+    public ProductImage createProductImage(int productId, CreateProductImage cpi) {
+        return webClient.post()
+                .uri(uriBuilder -> uriBuilder.path("catalog/products/{productId}/images").build(productId))
+                .body(Mono.just(cpi), CreateProductImage.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error adding image to product with id "
+                                        + productId
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                )
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<ProductImage>>(){})
+                .block()
+                .getData();
+    }
+
+    public Metafield createProductMetafield(int productId, Metafield metafield) {
+        return webClient.post()
+                .uri(uriBuilder -> uriBuilder.path("catalog/products/{productId}/metafields").build(productId))
+                .body(Mono.just(metafield), Metafield.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError, result ->
+                        result.bodyToMono(BcApiErrorResponse.class).flatMap(
+                                bcApiErrorResponse -> Mono.error(new BigCommerceServiceException("Error adding metafield "
+                                        + metafield.getKey()
+                                        + " to product with id "
+                                        + productId
+                                        + " "
+                                        + bcApiErrorResponse.toString())
+                                )
+                        )
+                )
+                .bodyToMono(new ParameterizedTypeReference<BcApiResponse<Metafield>>(){})
                 .block()
                 .getData();
     }

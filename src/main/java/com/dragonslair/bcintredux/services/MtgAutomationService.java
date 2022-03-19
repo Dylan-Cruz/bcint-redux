@@ -1,6 +1,8 @@
 package com.dragonslair.bcintredux.services;
 
 import com.dragonslair.bcintredux.bigcommerce.BigCommerceService;
+import com.dragonslair.bcintredux.bigcommerce.dto.Metafield;
+import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.enums.OperationStatus;
@@ -13,17 +15,19 @@ import com.dragonslair.bcintredux.scryfall.ScryfallService;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.utility.PriceSuggestor;
+import com.dragonslair.bcintredux.utility.ProductUtils;
 import com.dragonslair.bcintredux.utility.SkuBuilder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
 
-
-@Slf4j
 @Service
 public class MtgAutomationService {
+    Logger log = LoggerFactory.getLogger(MtgAutomationService.class);
+
     @Autowired
     private BigCommerceService bcService;
 
@@ -34,8 +38,34 @@ public class MtgAutomationService {
     private PriceSuggestor priceSuggestor;
 
     public ListingAttempt listProduct(ListingAttemptRequest listingRequest) {
-        ListingAttempt listing = new ListingAttempt();
+        ScryfallCard card = listingRequest.getCard();
+        Finish finish = listingRequest.getFinish();
+        String rootSku = listingRequest.getSku();
+        int categoryId = listingRequest.getCategoryId();
+
+        ListingAttempt listing = new ListingAttempt()
+                .setCard(card)
+                .setFinish(finish)
+                .setSku(rootSku);
+
         try {
+            // make the product
+            Product p = ProductUtils.buildProduct(card, finish, categoryId);
+
+            // persist it to big commerce
+            p = bcService.createProduct(p);
+            final int productId = p.getId();
+
+            // add the images
+            ProductUtils.makeProductImages(card).forEach(i -> {
+                bcService.createProductImage(productId, i);
+            });
+
+            // persist a metafield for scryfall id
+            bcService.createProductMetafield(productId, new Metafield(ProductMetafieldKeys.SCRYFALLID.name(), card.getId()));
+
+            // update the product as visible
+            bcService.updateProduct(productId, new Product().setVisible(true));
 
         } catch (RuntimeException re) {
             listing.setMessage(re.getMessage())

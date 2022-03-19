@@ -12,8 +12,11 @@ import com.dragonslair.bcintredux.scryfall.dto.ScryfallSet;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
 import com.dragonslair.bcintredux.utility.SkuBuilder;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,9 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component
 public class ListProductsTask {
+    Logger log = LoggerFactory.getLogger(ListProductsTask.class);
 
     @Autowired
     private ScryfallService sfService;
@@ -34,18 +37,30 @@ public class ListProductsTask {
     @Autowired
     private MtgAutomationService mtgService;
 
-    public void listProducts() {
-        try {
-            log.info("Starting list products task...");
-            List<ListingAttempt> listingAttempts = sfService.getAllSets()
-                    .stream()
-                    .filter(s -> (!s.isDigital() && "funny".equals(s.getSetType())))
-                    .map(s -> listSet(s))
-                    .flatMap(List::stream)
-                    .toList();
-            log.info("List products task complete. Listed {} new products", listingAttempts.size());
-        } catch (RuntimeException re) {
-            log.error("Unexpected error occurred in the list products task. Aborting.", re);
+    @Value("${dragonslair.mtg.listproducts.enabled}")
+    private boolean enabled;
+
+    @Scheduled(cron="${dragonslair.mtg.listproducts.schedule}")
+    public void runTask() {
+        if (enabled) {
+            try {
+                log.info("Starting list products task...");
+                List<ListingAttempt> listingAttempts = sfService.getAllSets()
+                        .stream()
+                        .filter(s -> (!s.isDigital()
+                                // && !"funny".equals(s.getSetType())
+                                // && !"token".equals(s.getSetType())
+                        ))
+                        .map(s -> listSet(s))
+                        .flatMap(List::stream)
+                        .toList();
+
+                log.info("List products task complete. Listed {} new products", listingAttempts.size());
+            } catch (RuntimeException re) {
+                log.error("Unexpected error occurred in the list products task. Aborting.", re);
+            }
+        } else {
+            log.info("List products task is disabled.");
         }
     }
 

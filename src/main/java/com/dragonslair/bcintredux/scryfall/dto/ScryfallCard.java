@@ -42,6 +42,9 @@ public class ScryfallCard {
     private String collectorNumber;
     private List<CardFace> cardFaces;
     private ScryfallPrices prices;
+    private boolean oversized;
+    private boolean promo;
+    private List<String> promoTypes;
 
     // print fields
     private LocalDate releasedAt;

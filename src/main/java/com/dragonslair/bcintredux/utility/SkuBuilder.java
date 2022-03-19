@@ -3,9 +3,7 @@ package com.dragonslair.bcintredux.utility;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class SkuBuilder {
 
     /**

@@ -18,7 +18,7 @@ public enum Rarity {
 
     private String name;
 
-    private Rarity(String name) {
+    Rarity(String name) {
         this.name = name;
     }
 }

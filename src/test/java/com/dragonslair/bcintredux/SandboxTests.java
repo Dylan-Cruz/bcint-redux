@@ -25,5 +25,4 @@ public class SandboxTests {
 
     @Autowired
     private ScryfallService scryfallService;
-
 }

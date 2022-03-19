@@ -5,14 +5,14 @@ import lombok.Getter;
 @Getter
 public enum Finish {
     foil("Foil", "F"),
-    nonfoil("Regular", "R"),
-    etched("Etched", "E"),
+    nonfoil("Non-Foil", "R"),
+    etched("Etched Foil", "E"),
     glossy("Glossy", "G");
 
     private String name;
     private String skuCode;
 
-    private Finish(String name, String skuCode) {
+    Finish(String name, String skuCode) {
         this.name = name;
         this.skuCode = skuCode;
     }

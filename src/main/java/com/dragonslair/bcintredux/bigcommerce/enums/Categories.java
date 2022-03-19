@@ -1,7 +1,7 @@
 package com.dragonslair.bcintredux.bigcommerce.enums;
 
 public enum Categories {
-    MAGICSINGLES(1065), MAGICBOOSTERS(22);
+    MAGICSINGLES(1568), MAGICBOOSTERS(22);
 
     private int id;
 
