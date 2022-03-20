@@ -20,7 +20,7 @@ public class SkuBuilder {
                 .append("MTGS")
                 .append(card.getSet())
                 .append(card.getCollectorNumber())
-                .append(finish.getName().substring(0, 1))
+                .append(finish.getSkuCode())
                 .toString()
                 .toUpperCase();
     }

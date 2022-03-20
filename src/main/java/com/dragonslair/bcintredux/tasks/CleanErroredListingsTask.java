@@ -4,8 +4,7 @@ import com.dragonslair.bcintredux.bigcommerce.BigCommerceService;
 import com.dragonslair.bcintredux.bigcommerce.dto.Category;
 import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.enums.Categories;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,9 +12,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+@Slf4j
 @Component
 public class CleanErroredListingsTask {
-    Logger log = LoggerFactory.getLogger(CleanErroredListingsTask.class);
 
     @Autowired
     private BigCommerceService bcService;

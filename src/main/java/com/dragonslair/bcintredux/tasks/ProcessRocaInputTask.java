@@ -4,8 +4,7 @@ import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.model.QuantityUpdate;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,10 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class ProcessRocaInputTask {
-    Logger log = LoggerFactory.getLogger(ProcessRocaInputTask.class);
-
     @Autowired
     private MtgAutomationService automationService;
 

@@ -4,8 +4,7 @@ import com.dragonslair.bcintredux.bigcommerce.BigCommerceService;
 import com.dragonslair.bcintredux.bigcommerce.enums.Categories;
 import com.dragonslair.bcintredux.model.PriceUpdate;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,10 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class UpdatePricesTask {
-    Logger log = LoggerFactory.getLogger(UpdatePricesTask.class);
-
     @Autowired
     private MtgAutomationService automationService;
 
