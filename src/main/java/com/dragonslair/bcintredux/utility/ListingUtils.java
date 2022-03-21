@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-public class ProductUtils {
+public class ListingUtils {
 
     public static Product buildProduct(ScryfallCard card, Finish finish, int categoryId) {
         // return fields

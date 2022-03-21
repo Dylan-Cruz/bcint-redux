@@ -1,7 +1,6 @@
 package com.dragonslair.bcintredux.model;
 
 import com.dragonslair.bcintredux.enums.Condition;
-import com.dragonslair.bcintredux.enums.OperationStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -9,7 +8,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
-public class QuantityUpdate {
+public class QuantityUpdate extends AutomationOperation {
     private String scryfallId;
     private String targetSku;
     private String cardName;
@@ -22,6 +21,4 @@ public class QuantityUpdate {
     private int endingQuantity;
     private double startingPrice;
     private double endingPrice;
-    private OperationStatus status = OperationStatus.NOT_STARTED;
-    private String message = "";
 }

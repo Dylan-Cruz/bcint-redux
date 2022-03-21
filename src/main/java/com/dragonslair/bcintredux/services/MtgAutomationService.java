@@ -15,7 +15,7 @@ import com.dragonslair.bcintredux.scryfall.ScryfallService;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.utility.PriceSuggestor;
-import com.dragonslair.bcintredux.utility.ProductUtils;
+import com.dragonslair.bcintredux.utility.ListingUtils;
 import com.dragonslair.bcintredux.utility.SkuBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +49,14 @@ public class MtgAutomationService {
 
         try {
             // make the product
-            Product p = ProductUtils.buildProduct(card, finish, categoryId);
+            Product p = ListingUtils.buildProduct(card, finish, categoryId);
 
             // persist it to big commerce
             p = bcService.createProduct(p);
             final int productId = p.getId();
 
             // add the images
-            ProductUtils.makeProductImages(card).forEach(i -> {
+            ListingUtils.makeProductImages(card).forEach(i -> {
                 bcService.createProductImage(productId, i);
             });
 

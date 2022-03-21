@@ -1,10 +1,16 @@
 package com.dragonslair.bcintredux.utility;
 
+import com.dragonslair.bcintredux.enums.Condition;
+import com.dragonslair.bcintredux.scryfall.enums.Finish;
+import com.dragonslair.bcintredux.scryfall.enums.Rarity;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class PricingServiceTests {
@@ -19,14 +25,15 @@ public class PricingServiceTests {
     private Map<String, Double> minPriceMapNormal;
     @Value("#{${dragonslair.mtg.minimumPriceFoil}}")
     private Map<String, Double> minPriceMapFoil;
+    @Value("#{${dragonslair.mtg.minimumPriceEtched}}")
+    private Map<String, Double> minPriceMapEtched;
 
-    /*
     @Test
     public void nmMythicRegularOver() {
         double minimum = minPriceMapNormal.get(Rarity.MYTHIC.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.MYTHIC, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.MYTHIC, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -35,7 +42,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.MYTHIC.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.MYTHIC, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.MYTHIC, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -44,7 +51,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.MYTHIC.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.MYTHIC, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.MYTHIC, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -53,7 +60,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.MYTHIC.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.MYTHIC, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.MYTHIC, Condition.NM, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmMythicEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.MYTHIC.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.MYTHIC, Condition.NM, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmMythicEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.MYTHIC.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.MYTHIC, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -62,7 +87,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.SPECIAL.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.SPECIAL, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.SPECIAL, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -71,7 +96,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.SPECIAL.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.SPECIAL, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.SPECIAL, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -80,7 +105,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.SPECIAL.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.SPECIAL, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.SPECIAL, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -89,7 +114,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.SPECIAL.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.SPECIAL, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.SPECIAL, Condition.NM, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmSpecialEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.SPECIAL.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.SPECIAL, Condition.NM, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmSpecialEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.SPECIAL.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.SPECIAL, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -98,7 +141,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.RARE.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.RARE, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.RARE, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -107,7 +150,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.RARE.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.RARE, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.RARE, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -116,7 +159,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.RARE.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.RARE, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.RARE, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -125,7 +168,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.RARE.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.RARE, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.RARE, Condition.NM, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmRareEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.RARE.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.RARE, Condition.NM, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmRareEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.RARE.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.RARE, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -134,7 +195,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.UNCOMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.UNCOMMON, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.UNCOMMON, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -143,7 +204,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.UNCOMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.UNCOMMON, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.UNCOMMON, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -152,16 +213,34 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.UNCOMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.UNCOMMON, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.UNCOMMON, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
     @Test
     public void nmUncommonFoilUnder() {
-        double minimum = minPriceMapFoil.get(Rarity.UNCOMMON.getName());
+        double minimum = minPriceMapEtched.get(Rarity.UNCOMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.UNCOMMON, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.UNCOMMON, Condition.NM, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmUncommonEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.UNCOMMON.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.UNCOMMON, Condition.NM, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmUncommonEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.UNCOMMON.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.UNCOMMON, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -171,7 +250,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.COMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.COMMON, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.COMMON, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -180,7 +259,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.COMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.COMMON, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.COMMON, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -189,7 +268,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.COMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.COMMON, Condition.NM, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.COMMON, Condition.NM, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -198,7 +277,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.COMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.COMMON, Condition.NM, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.COMMON, Condition.NM, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmCommonEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.COMMON.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.NM, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void nmCommonEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.COMMON.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -207,7 +304,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.MYTHIC.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.MYTHIC, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.MYTHIC, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -216,7 +313,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.MYTHIC.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum * (1 - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.MYTHIC, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.MYTHIC, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -225,7 +322,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.MYTHIC.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.MYTHIC, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.MYTHIC, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -234,7 +331,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.MYTHIC.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum * (1 - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.MYTHIC, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.MYTHIC, Condition.PL, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plMythicEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.MYTHIC.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.MYTHIC, Condition.PL, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plMythicEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.MYTHIC.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum * (1 - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.MYTHIC, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -243,7 +358,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.SPECIAL.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.SPECIAL, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.SPECIAL, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -252,7 +367,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.SPECIAL.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum * (1 - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.SPECIAL, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.SPECIAL, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -261,7 +376,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.SPECIAL.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.SPECIAL, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.SPECIAL, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -270,7 +385,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.SPECIAL.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum * (1 - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.SPECIAL, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.SPECIAL, Condition.PL, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plSpecialEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.SPECIAL.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.SPECIAL, Condition.PL, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plSpecialEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.SPECIAL.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum * (1 - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.SPECIAL, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -279,7 +412,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.RARE.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.RARE, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.RARE, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -288,7 +421,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.RARE.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum * (1 - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.RARE, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.RARE, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -297,7 +430,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.RARE.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.RARE, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.RARE, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -306,7 +439,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.RARE.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum * (1 - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.RARE, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.RARE, Condition.PL, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plRareEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.RARE.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.RARE, Condition.PL, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plRareEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.RARE.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum * (1 - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.RARE, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -315,7 +466,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.UNCOMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.UNCOMMON, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.UNCOMMON, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -324,7 +475,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.UNCOMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.UNCOMMON, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.UNCOMMON, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -333,7 +484,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.UNCOMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.UNCOMMON, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.UNCOMMON, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -342,7 +493,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.UNCOMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.UNCOMMON, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.UNCOMMON, Condition.PL, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plUncommonEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.UNCOMMON.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.UNCOMMON, Condition.PL, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plUncommonEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.UNCOMMON.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.UNCOMMON, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -351,7 +520,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.COMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.COMMON, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.COMMON, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -360,7 +529,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapNormal.get(Rarity.COMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(false, Rarity.COMMON, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.nonfoil, Rarity.COMMON, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -369,7 +538,7 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.COMMON.getName());
         double overPrice = minimum * 2;
         double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.COMMON, Condition.PL, overPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.COMMON, Condition.PL, overPrice);
         assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
 
@@ -378,8 +547,25 @@ public class PricingServiceTests {
         double minimum = minPriceMapFoil.get(Rarity.COMMON.getName());
         double underPrice = minimum / 2;
         double expectedPrice = minimum;
-        double suggestedPrice = pricingService.getPriceSuggestion(true, Rarity.COMMON, Condition.PL, underPrice);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.foil, Rarity.COMMON, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
-     */
+
+    @Test
+    public void plCommonEtchedOver() {
+        double minimum = minPriceMapEtched.get(Rarity.COMMON.getName());
+        double overPrice = minimum * 2;
+        double expectedPrice = overPrice * (1 + singlesMarkup - playedMarkdown);
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.PL, overPrice);
+        assertEquals(expectedPrice, suggestedPrice, .01, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
+
+    @Test
+    public void plCommonEtchedUnder() {
+        double minimum = minPriceMapEtched.get(Rarity.COMMON.getName());
+        double underPrice = minimum / 2;
+        double expectedPrice = minimum;
+        double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.PL, underPrice);
+        assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
+    }
 }
