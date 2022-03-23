@@ -22,6 +22,8 @@ public class PriceSuggestor {
     private Map<String, Double> minPriceMapFoil;
     @Value("#{${dragonslair.mtg.minimumPriceEtched}}")
     private Map<String, Double> minPriceMapEtched;
+    @Value("#{${dragonslair.mtg.conditionmarkdowns}}")
+    private Map<String, Integer> markdownRates;
 
     public double getPriceSuggestion(Finish finishInHand, Rarity rarity, Condition condition, double price) {
         double ourPrice;
