@@ -42,7 +42,6 @@ public class ProcessRocaInputTask {
     private final static String CONDITION_KEY = "Condition";
     private final static String QUANTITY_KEY = "Add to Quantity";
     private final static String SCRYFALL_ID_KEY = "Scryfall Id";
-    private final static String FOIL_KEY = "Foil";
     private final static String FINISH_KEY = "Finish";
 
 
@@ -184,9 +183,9 @@ public class ProcessRocaInputTask {
             throw new RuntimeException("Column " + CONDITION_KEY + " is missing.");
         }
 
-        // column Foiling is present
-        if (!headerToIndexMap.containsKey(FOIL_KEY)) {
-            throw new RuntimeException("Column " + FOIL_KEY + " is missing.");
+        // column Finish is present
+        if (!headerToIndexMap.containsKey(FINISH_KEY)) {
+            throw new RuntimeException("Column " + FINISH_KEY + " is missing.");
         }
 
         return headerToIndexMap;
@@ -207,7 +206,7 @@ public class ProcessRocaInputTask {
         if (s == null || s.isBlank() || s.isEmpty()) {
             return null;
         } else {
-            return s.equalsIgnoreCase("Near Mint") ? Condition.NM : Condition.PL;
+            return s.startsWith("Near Mint") ? Condition.NM : Condition.PL;
         }
     }
 
@@ -217,7 +216,7 @@ public class ProcessRocaInputTask {
                 aqJob.getCollectorNumber() + "," +
                 aqJob.getScryfallId() + "," +
                 aqJob.getCondition().getLongForm() + "," +
-                aqJob.isFoilInHand() + "," +
+                aqJob.getFinishInHand().name() + "," +
                 aqJob.getTargetSku() + "," +
                 aqJob.getStatus().toString() + "," +
                 aqJob.getMessage() + "," +
@@ -234,7 +233,7 @@ public class ProcessRocaInputTask {
                 "Number," +
                 "Scryfall Id," +
                 "Condition," +
-                "Foil In Hand," +
+                "Finish In Hand," +
                 "Target SKU," +
                 "Status," +
                 "Message," +

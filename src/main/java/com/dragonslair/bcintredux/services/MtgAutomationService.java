@@ -141,7 +141,11 @@ public class MtgAutomationService {
      */
     public QuantityUpdate addQuantityToVariant(String scryfallId, int quantity, Condition condition, Finish finishInHand) {
         // make the job to return
-        QuantityUpdate qu = new QuantityUpdate();
+        QuantityUpdate qu = new QuantityUpdate()
+                .setQuantityToAdd(quantity)
+                .setCondition(condition)
+                .setFinishInHand(finishInHand)
+                .setScryfallId(scryfallId);
 
         try {
             // validate
@@ -192,7 +196,7 @@ public class MtgAutomationService {
                     variantSku,
                     patch);
 
-            qu.setEndingQuantity(variant.getInventoryLevel())
+            qu.setEndingQuantity(newQuantity)
                     .setEndingPrice(variant.getPrice())
                     .setStatus(OperationStatus.COMPLETED);
 

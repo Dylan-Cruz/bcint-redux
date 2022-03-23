@@ -106,7 +106,7 @@ public class ListingUtils {
      */
     private static String getListingName(ScryfallCard card, Finish finish) {
         return new StringBuilder().append(card.getName())
-                .append("    ")
+                .append("   ")
                 .append(card.getSet().toUpperCase())
                 .append(" #")
                 .append(card.getCollectorNumber())

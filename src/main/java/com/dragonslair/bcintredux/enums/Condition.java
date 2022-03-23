@@ -14,3 +14,9 @@ public enum Condition {
         return longForm;
     }
 }
+
+// nm 100
+// lp 90
+// mp 75
+// hp 60
+// dmg 50
