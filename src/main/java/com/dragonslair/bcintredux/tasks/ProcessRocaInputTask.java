@@ -206,7 +206,7 @@ public class ProcessRocaInputTask {
         if (s == null || s.isBlank() || s.isEmpty()) {
             return null;
         } else {
-            return s.startsWith("Near Mint") ? Condition.NM : Condition.PL;
+            return Condition.fromLongForm(s);
         }
     }
 

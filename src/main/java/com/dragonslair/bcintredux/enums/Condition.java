@@ -17,5 +17,14 @@ public enum Condition {
     public String getLongForm() {
         return longForm;
     }
+
+    public static Condition fromLongForm(String s) {
+        for (Condition c : Condition.values()) {
+            if (s.toLowerCase().startsWith(c.getLongForm())) {
+                return c;
+            }
+        }
+        return null;
+    }
 }
 

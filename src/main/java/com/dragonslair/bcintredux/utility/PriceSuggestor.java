@@ -23,16 +23,20 @@ public class PriceSuggestor {
     @Value("#{${dragonslair.mtg.minimumPriceEtched}}")
     private Map<String, Double> minPriceMapEtched;
     @Value("#{${dragonslair.mtg.conditionmarkdowns}}")
-    private Map<String, Integer> markdownRates;
+    private Map<String, Double> markdownRates;
 
     public double getPriceSuggestion(Finish finishInHand, Rarity rarity, Condition condition, double price) {
         double ourPrice;
+        double markdown = markdownRates.get(condition.toString());
 
         // apply our markup/markdown
-        ourPrice = condition == Condition.NM ? price * (1 + singlesMarkup) : price * (1 + singlesMarkup - playedMarkdown);
+        ourPrice = price * (1 + singlesMarkup - markdown);
 
-        // apply our minimum and round
-        ourPrice = applyMinimum(finishInHand, rarity, condition, ourPrice);
+        // apply our minimum
+        ourPrice = applyMinimum(finishInHand, rarity, markdown, ourPrice);
+
+        // round the result
+        ourPrice = priceRounding(ourPrice);
 
         return ourPrice;
     }
@@ -48,23 +52,16 @@ public class PriceSuggestor {
     }
 
 
-    private double applyMinimum(Finish finishInHand, Rarity rarity, Condition condition, double price) {
+    private double applyMinimum(Finish finishInHand, Rarity rarity, double markdown, double price) {
         String cardRarityName = rarity.getName();
         Map<String, Double> mapToUse = switch(finishInHand) {
             case nonfoil -> minPriceMapNormal;
             case foil -> minPriceMapFoil;
-            default -> minPriceMapEtched;
+            case etched -> minPriceMapEtched;
+            default -> throw new IllegalArgumentException("Unsupported condition for pricing.");
         };
         double minimumPrice = mapToUse.get(cardRarityName);
 
-        if (condition == Condition.NM) {
-            return priceRounding(price < minimumPrice ? minimumPrice : price);
-        } else {
-            if (rarity == Rarity.RARE || rarity == Rarity.SPECIAL || rarity == Rarity.MYTHIC) {
-                return priceRounding(price < minimumPrice ? minimumPrice * (1 - playedMarkdown) : price);
-            } else {
-                return priceRounding(price < minimumPrice ? minimumPrice : price);
-            }
-        }
+        return price < minimumPrice ? minimumPrice * (1 - markdown) : price;
     }
 }
