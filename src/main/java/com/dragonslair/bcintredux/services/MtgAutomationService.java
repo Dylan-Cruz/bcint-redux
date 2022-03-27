@@ -201,6 +201,7 @@ public class MtgAutomationService {
                     .setEndingPrice(variant.getPrice())
                     .setStatus(OperationStatus.COMPLETED);
 
+            log.info("Successfully updated quantity on variant with sku: {} from {} to {}", qu.getTargetSku(), qu.getStartingQuantity(), qu.getEndingQuantity());
         } catch (RuntimeException re) {
             qu.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);

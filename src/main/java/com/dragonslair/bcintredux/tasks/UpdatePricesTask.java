@@ -27,7 +27,6 @@ public class UpdatePricesTask {
 
     @Scheduled(cron="${dragonslair.mtg.updateprices.schedule}")
     public void runTask() {
-
         if (enabled) {
             try {
                 log.info("Starting update prices task...");
