@@ -162,7 +162,7 @@ public class ListingUtils {
                         .append(applyParagraphTag.apply(applyBoldTag.apply("Type: ") + nullCatch.apply(cf.getTypeLine())))
                         .append(applyParagraphTag.apply(applyBoldTag.apply("Oracle Text: ")));
 
-                Arrays.stream(nullCatch.apply(card.getOracleText()).split("\\n")).forEach(line -> {
+                Arrays.stream(nullCatch.apply(cf.getOracleText()).split("\\n")).forEach(line -> {
                     sb.append(applyParagraphTag.apply(line));
                 });
 
