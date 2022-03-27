@@ -250,7 +250,7 @@ public class BigCommerceServiceTests {
                 service.getVariantBySku("test-sku");
             }
         );
-        assertEquals("Error searching for variant with sku test-sku status code: 422 UNPROCESSABLE_ENTITY", exception.getMessage());
+        assertEquals("Error searching for variant with sku test-sku status: 422 message: The filter: no is not a valid filter parameter.", exception.getMessage());
     }
 
     // test that a variant is returned when we get a 200 and one variant is present

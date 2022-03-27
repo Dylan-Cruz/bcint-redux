@@ -18,7 +18,7 @@ public class BcApiErrorResponse {
         return new StringBuilder()
             .append("status: ")
             .append(status)
-            .append("message: ")
+            .append(" message: ")
             .append(title)
             .toString();
     }

@@ -3,6 +3,7 @@ package com.dragonslair.bcintredux.utility;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.scryfall.enums.Rarity;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled
 @SpringBootTest
 public class PricingServiceTests {
     @Autowired
@@ -298,7 +300,7 @@ public class PricingServiceTests {
         double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
-/*
+    /*
     @Test
     public void plMythicRegularOver() {
         double minimum = minPriceMapNormal.get(Rarity.MYTHIC.getName());
