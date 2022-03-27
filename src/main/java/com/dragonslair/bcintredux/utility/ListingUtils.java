@@ -187,12 +187,10 @@ public class ListingUtils {
         sb.append(applyParagraphTag.apply(applyBoldTag.apply("Rarity: ") + nullCatch.apply(card.getRarity().getName())))
                 .append(applyParagraphTag.apply(applyBoldTag.apply("Finish: ") + nullCatch.apply(finish.getName())));
         if (card.isPromo()) {
-            sb.append(applyParagraphTag.apply(applyBoldTag.apply("Promo: ")))
-                    .append("True");
+            sb.append(applyParagraphTag.apply(applyBoldTag.apply("Promo: ") + "True"));
         }
         if (card.isOversized()) {
-            sb.append(applyParagraphTag.apply(applyBoldTag.apply("Oversize: ")))
-                    .append("True");
+            sb.append(applyParagraphTag.apply(applyBoldTag.apply("Oversize: ") + "True"));
         }
 
         return sb.toString();
