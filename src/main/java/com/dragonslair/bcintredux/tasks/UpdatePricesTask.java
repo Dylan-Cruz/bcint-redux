@@ -43,7 +43,7 @@ public class UpdatePricesTask {
                         ).flatMap(l -> l.stream()).collect(Collectors.toList());
 
                 log.info("Update prices task complete. Performed {} updates.", pus.size());
-            } catch (RuntimeException re) {
+            } catch (Exception re) {
                 log.error("Unexpected error running update prices task", re);
             }
         } else {

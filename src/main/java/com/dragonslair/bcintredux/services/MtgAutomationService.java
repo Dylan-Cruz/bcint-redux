@@ -67,7 +67,7 @@ public class MtgAutomationService {
             bcService.updateProduct(productId, new Product().setVisible(true));
 
             log.info("Successfully listed product with sku {}", listing.getSku());
-        } catch (RuntimeException re) {
+        } catch (Exception re) {
             listing.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
             log.error("Error listing product with sku {}", listing.getSku(), re);
@@ -126,7 +126,7 @@ public class MtgAutomationService {
             }
 
             pu.setStatus(OperationStatus.COMPLETED);
-        } catch (RuntimeException re) {
+        } catch (Exception re) {
             pu.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
             log.error("Error updating price on variant with sku {}", variant.getSku(), re);
@@ -202,7 +202,7 @@ public class MtgAutomationService {
                     .setStatus(OperationStatus.COMPLETED);
 
             log.info("Successfully updated quantity on variant with sku: {} from {} to {}", qu.getTargetSku(), qu.getStartingQuantity(), qu.getEndingQuantity());
-        } catch (RuntimeException re) {
+        } catch (Exception re) {
             qu.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
             log.error("Error updating quantity on variant with scryfallId: {} sku: {}", scryfallId, qu.getTargetSku(), re);

@@ -123,7 +123,7 @@ public class ProcessRocaInputTask {
             ).contents().stream()
                     .filter(o -> o.key().matches("toProcess/.+"))
                     .toList();
-        } catch(RuntimeException e) {
+        } catch(Exception e) {
             throw new RuntimeException("An error occurred finding eligible files to process. Process will be aborted.", e);
         }
     }

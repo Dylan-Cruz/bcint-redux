@@ -40,16 +40,16 @@ public class CleanErroredListingsTask {
                             try {
                                 bcService.deleteProduct(p.getId());
 
-                            } catch (RuntimeException re) {
+                            } catch (Exception re) {
                                 log.error("Error deleting product with sku: {}", p.getSku());
                             }
                         }
-                    } catch (RuntimeException re) {
+                    } catch (Exception re) {
                         log.error("Error removing errored listings for set {}", c.getName(), re);
                     }
                 }
 
-            } catch (RuntimeException re) {
+            } catch (Exception re) {
                 log.error("An unrecoverable error occurred while removing errored listings. Aborting process.", re);
             }
         } else {

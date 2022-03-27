@@ -54,7 +54,7 @@ public class ListProductsTask {
                         .toList();
 
                 log.info("List products task complete. Listed {} new products", listingAttempts.size());
-            } catch (RuntimeException re) {
+            } catch (Exception re) {
                 log.error("Unexpected error occurred in the list products task. Aborting.", re);
             }
         } else {
@@ -93,7 +93,7 @@ public class ListProductsTask {
             log.info("Listing {} products for set {}", listings.size(), set.getName());
             return listings.stream().map(mtgService::listProduct).collect(Collectors.toList());
 
-        } catch (RuntimeException re) {
+        } catch (Exception re) {
             log.error("Unexpected error occurred listing cards for set {}", set.getName(), re);
             return Collections.emptyList();
         }
