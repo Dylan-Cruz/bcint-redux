@@ -298,7 +298,7 @@ public class PricingServiceTests {
         double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.NM, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
-
+/*
     @Test
     public void plMythicRegularOver() {
         double minimum = minPriceMapNormal.get(Rarity.MYTHIC.getName());
@@ -568,4 +568,5 @@ public class PricingServiceTests {
         double suggestedPrice = pricingService.getPriceSuggestion(Finish.etched, Rarity.COMMON, Condition.PL, underPrice);
         assertEquals(expectedPrice, suggestedPrice, "Expected Price: " + expectedPrice + " does not equal Suggested Price: " + suggestedPrice);
     }
+ */
 }

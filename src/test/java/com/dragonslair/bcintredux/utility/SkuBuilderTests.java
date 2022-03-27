@@ -41,11 +41,11 @@ public class SkuBuilderTests {
         assertEquals("MTGSTST123FNM", rookSku);
     }
 
-    @Test
-    public void variantSkuIsCorrectWhenNotFoilAndPL() {
-        String rookSku = SkuBuilder.getVariantSku(card, Finish.nonfoil, Condition.PL);
-        assertEquals("MTGSTST123RPL", rookSku);
-    }
+//    @Test
+//    public void variantSkuIsCorrectWhenNotFoilAndPL() {
+//        String rookSku = SkuBuilder.getVariantSku(card, Finish.nonfoil, Condition.PL);
+//        assertEquals("MTGSTST123RPL", rookSku);
+//    }
 
     @Test
     public void variantSkuIsCorrectWhenEtchedAndNM() {
@@ -53,10 +53,10 @@ public class SkuBuilderTests {
         assertEquals("MTGSTST123ENM", rookSku);
     }
 
-    @Test
-    public void variantSkuIsCorrectWhenGlossyAndPL() {
-        String rookSku = SkuBuilder.getVariantSku(card, Finish.glossy, Condition.PL);
-        assertEquals("MTGSTST123GPL", rookSku);
-    }
+//    @Test
+//    public void variantSkuIsCorrectWhenGlossyAndPL() {
+//        String rookSku = SkuBuilder.getVariantSku(card, Finish.glossy, Condition.PL);
+//        assertEquals("MTGSTST123GPL", rookSku);
+//    }
 
 }

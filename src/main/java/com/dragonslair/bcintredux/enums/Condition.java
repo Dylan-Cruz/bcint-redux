@@ -2,11 +2,10 @@ package com.dragonslair.bcintredux.enums;
 
 public enum Condition {
     NM("Near Mint"),
-    PL("Played"),
     LP("Lightly Played"),
     MP("Moderately Played"),
     HP("Heavily Played"),
-    DMG("Damaged");
+    DG("Damaged");
 
     private String longForm;
 
@@ -21,6 +20,15 @@ public enum Condition {
     public static Condition fromLongForm(String s) {
         for (Condition c : Condition.values()) {
             if (s.toLowerCase().startsWith(c.getLongForm())) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public static Condition fromSku(String s) {
+        for (Condition c : Condition.values()) {
+            if (s.toUpperCase().endsWith(c.name())) {
                 return c;
             }
         }

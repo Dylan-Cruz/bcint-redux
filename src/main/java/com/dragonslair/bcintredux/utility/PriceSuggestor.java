@@ -14,8 +14,6 @@ import java.util.Map;
 public class PriceSuggestor {
     @Value("${dragonslair.mtg.singlesmarkup}")
     private double singlesMarkup;
-    @Value("${dragonslair.mtg.playedmarkdown}")
-    private double playedMarkdown;
     @Value("#{${dragonslair.mtg.minimumPriceNormal}}")
     private Map<String, Double> minPriceMapNormal;
     @Value("#{${dragonslair.mtg.minimumPriceFoil}}")
@@ -25,12 +23,13 @@ public class PriceSuggestor {
     @Value("#{${dragonslair.mtg.conditionmarkdowns}}")
     private Map<String, Double> markdownRates;
 
-    public double getPriceSuggestion(Finish finishInHand, Rarity rarity, Condition condition, double price) {
+    public double getPriceSuggestion(Finish finishInHand, Rarity rarity, Condition condition, Double price) {
+        double scryfallPrice = price == null ? 0.0 : price;
         double ourPrice;
         double markdown = markdownRates.get(condition.toString());
 
         // apply our markup/markdown
-        ourPrice = price * (1 + singlesMarkup - markdown);
+        ourPrice = scryfallPrice * (1 + singlesMarkup - markdown);
 
         // apply our minimum
         ourPrice = applyMinimum(finishInHand, rarity, markdown, ourPrice);
@@ -58,7 +57,7 @@ public class PriceSuggestor {
             case nonfoil -> minPriceMapNormal;
             case foil -> minPriceMapFoil;
             case etched -> minPriceMapEtched;
-            default -> throw new IllegalArgumentException("Unsupported condition for pricing.");
+            default -> throw new IllegalArgumentException("Unsupported finish for pricing.");
         };
         double minimumPrice = mapToUse.get(cardRarityName);
 

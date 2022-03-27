@@ -60,12 +60,13 @@ public class MtgAutomationService {
                 bcService.createProductImage(productId, i);
             });
 
-            // persist a metafield for scryfall id
+            // persist metafields we need for better processing
             bcService.createProductMetafield(productId, new Metafield(ProductMetafieldKeys.SCRYFALLID.name(), card.getId()));
 
             // update the product as visible
             bcService.updateProduct(productId, new Product().setVisible(true));
 
+            log.info("Successfully listed product with sku {}", listing.getSku());
         } catch (RuntimeException re) {
             listing.setMessage(re.getMessage())
                     .setStatus(OperationStatus.ERRORED);
@@ -100,10 +101,10 @@ public class MtgAutomationService {
 
             // get the new price
             String variantSku = variant.getSku();
-            Finish finishInHand = Finish.fromSkuCode(variantSku.substring(variantSku.length()-3, variantSku.length()-3));
-            Condition condition = Condition.valueOf(variantSku.substring(variantSku.length()-2).toUpperCase());
+            Finish finishInHand = Finish.fromSkuCode(variantSku.substring(variantSku.length()-3, variantSku.length()-2));
+            Condition condition = Condition.fromSku(variantSku);
             double oldPrice = variant.getPrice();
-            double scryfallPrice = card.getPriceForFinish(finishInHand);
+            Double scryfallPrice = card.getPriceForFinish(finishInHand);
             double newPrice = priceSuggestor.getPriceSuggestion(finishInHand, card.getRarity(), condition, scryfallPrice);
 
             if (oldPrice != newPrice) {

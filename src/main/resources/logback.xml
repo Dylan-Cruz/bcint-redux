@@ -47,12 +47,12 @@
         </encoder>
     </appender>
 
-<!--    <appender name="ROLLBAR" class="com.rollbar.logback.RollbarAppender">-->
-<!--        <accessToken>${rollbar.key}</accessToken>-->
-<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
-<!--            <level>ERROR</level>-->
-<!--        </filter>-->
-<!--    </appender>-->
+    <appender name="ROLLBAR" class="com.rollbar.logback.RollbarAppender">
+        <accessToken>${rollbar.key}</accessToken>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
 
     <root level="info">
         <appender-ref ref="STDOUT" />
