@@ -1,6 +1,7 @@
 package com.dragonslair.bcintredux.services;
 
 import com.dragonslair.bcintredux.bigcommerce.BigCommerceService;
+import com.dragonslair.bcintredux.bigcommerce.dto.CreateProductImage;
 import com.dragonslair.bcintredux.bigcommerce.dto.Metafield;
 import com.dragonslair.bcintredux.bigcommerce.dto.Product;
 import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
@@ -14,14 +15,15 @@ import com.dragonslair.bcintredux.model.QuantityUpdate;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
-import com.dragonslair.bcintredux.utility.PriceSuggestor;
 import com.dragonslair.bcintredux.utility.ListingUtils;
+import com.dragonslair.bcintredux.utility.PriceSuggestor;
 import com.dragonslair.bcintredux.utility.SkuBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -48,15 +50,19 @@ public class MtgAutomationService {
                 .setSku(rootSku);
 
         try {
+
             // make the product
             Product p = ListingUtils.buildProduct(card, finish, categoryId);
 
-            // persist it to big commerce
+            // make the images
+            List<CreateProductImage> images = ListingUtils.makeProductImages(card);
+
+            // persist the product
             p = bcService.createProduct(p);
             final int productId = p.getId();
 
-            // add the images
-            ListingUtils.makeProductImages(card).forEach(i -> {
+            // persist the images
+            images.forEach(i -> {
                 bcService.createProductImage(productId, i);
             });
 

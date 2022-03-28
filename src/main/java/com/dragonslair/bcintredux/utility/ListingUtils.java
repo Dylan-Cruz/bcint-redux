@@ -11,7 +11,7 @@ import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.scryfall.dto.CardFace;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
-import com.dragonslair.bcintredux.scryfall.enums.Layout;
+import com.dragonslair.bcintredux.scryfall.enums.ImageStatus;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -77,24 +77,35 @@ public class ListingUtils {
     }
 
     public static List<CreateProductImage> makeProductImages(ScryfallCard card) {
-        List<CreateProductImage> images = new ArrayList<>();
+       try {
+            // validate the image status of the card. Throw an error if high res scan isn't available.
+            ImageStatus imageStatus = card.getImageStatus();
+            if (imageStatus != null && imageStatus == ImageStatus.highres_scan ) {
 
-        Layout layout = card.getLayout();
-        if (card.getCardFaces() != null && card.getCardFaces().size() > 1) {
-            // double sided card
-            card.getCardFaces().stream().forEach(f -> {
-                CreateProductImage image = new CreateProductImage();
-                image.setImageUrl(f.getImageUris().getLarge());
-                images.add(image);
-            });
-        } else {
-            // single sided card
-            CreateProductImage image = new CreateProductImage();
-            image.setImageUrl(card.getImageUris().getLarge());
-            images.add(image);
+                // image is available, lets build our cpis
+                List<CreateProductImage> images = new ArrayList<>();
+                if (card.getImageUris() == null && card.getCardFaces() != null) {
+                    // double sided card
+                    card.getCardFaces().stream().forEach(f -> {
+                        CreateProductImage image = new CreateProductImage();
+                        image.setImageUrl(f.getImageUris().getLarge());
+                        images.add(image);
+                    });
+                } else {
+                    // single sided card
+                    CreateProductImage image = new CreateProductImage();
+                    image.setImageUrl(card.getImageUris().getLarge());
+                    images.add(image);
+                }
+
+                return images;
+
+            } else {
+                throw new RuntimeException("High res images not available.");
+            }
+        } catch (RuntimeException re) {
+            throw new RuntimeException("Error generating images for card with scryfall id " + card.getId(), re);
         }
-
-        return images;
     }
 
     /**

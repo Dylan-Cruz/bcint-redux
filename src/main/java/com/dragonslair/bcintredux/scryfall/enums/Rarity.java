@@ -14,7 +14,10 @@ public enum Rarity {
     @JsonProperty("mythic")
     MYTHIC("Mythic"),
     @JsonProperty("special")
-    SPECIAL("Special");
+    SPECIAL("Special"),
+    @JsonProperty("bonus")
+    BONUS("Bonus");
+
 
     private String name;
 

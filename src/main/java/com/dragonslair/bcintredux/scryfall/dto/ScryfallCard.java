@@ -2,6 +2,7 @@ package com.dragonslair.bcintredux.scryfall.dto;
 
 
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
+import com.dragonslair.bcintredux.scryfall.enums.ImageStatus;
 import com.dragonslair.bcintredux.scryfall.enums.Layout;
 import com.dragonslair.bcintredux.scryfall.enums.Rarity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -26,6 +27,7 @@ public class ScryfallCard {
     private boolean nonfoil;
     private List<Finish> finishes;
     private Layout layout;
+    private ImageStatus imageStatus;
 
     // card fields
     private String name;

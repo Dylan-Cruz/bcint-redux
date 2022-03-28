@@ -21,7 +21,7 @@ public enum Layout {
     augment,
     host,
     art_series,
-    reversable_card,
+    reversible_card,
     @JsonProperty("class")
     class_enchantment
 }

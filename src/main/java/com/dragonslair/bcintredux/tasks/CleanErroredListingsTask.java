@@ -41,7 +41,7 @@ public class CleanErroredListingsTask {
                                 bcService.deleteProduct(p.getId());
 
                             } catch (Exception re) {
-                                log.error("Error deleting product with sku: {}", p.getSku());
+                                log.error("Error deleting product with sku: {}", p.getSku(), re);
                             }
                         }
                     } catch (Exception re) {
@@ -52,6 +52,8 @@ public class CleanErroredListingsTask {
             } catch (Exception re) {
                 log.error("An unrecoverable error occurred while removing errored listings. Aborting process.", re);
             }
+
+            log.info("Cleanup errored listings task complete.");
         } else {
             log.info("Cleanup errored listings task disabled.");
         }
