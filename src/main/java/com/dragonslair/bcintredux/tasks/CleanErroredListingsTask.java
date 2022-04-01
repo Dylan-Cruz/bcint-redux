@@ -25,6 +25,8 @@ public class CleanErroredListingsTask {
     @Scheduled(cron="${dragonslair.mtg.cleanuplistings.schedule}")
     public void runTask() {
         if (enabled) {
+            int cardsRemoved = 0;
+
             log.info("Starting process to remove errored listings");
 
             try {
@@ -39,7 +41,7 @@ public class CleanErroredListingsTask {
                         for (Product p : bcService.searchProducts(args)) {
                             try {
                                 bcService.deleteProduct(p.getId());
-
+                                cardsRemoved++;
                             } catch (Exception re) {
                                 log.error("Error deleting product with sku: {}", p.getSku(), re);
                             }
@@ -53,7 +55,7 @@ public class CleanErroredListingsTask {
                 log.error("An unrecoverable error occurred while removing errored listings. Aborting process.", re);
             }
 
-            log.info("Cleanup errored listings task complete.");
+            log.info("Cleanup errored listings task complete. Removed {} cards.", cardsRemoved);
         } else {
             log.info("Cleanup errored listings task disabled.");
         }
