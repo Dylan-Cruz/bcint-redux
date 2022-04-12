@@ -197,7 +197,7 @@ public class ProcessRocaInputTask {
                 aqJob.getCollectorNumber() + "," +
                 aqJob.getScryfallId() + "," +
                 aqJob.getCondition().getLongForm() + "," +
-                aqJob.getFinishInHand().name() + "," +
+                aqJob.getFinishInHand().getName() + "," +
                 aqJob.getTargetSku() + "," +
                 aqJob.getStatus().toString() + "," +
                 aqJob.getMessage() + "," +
