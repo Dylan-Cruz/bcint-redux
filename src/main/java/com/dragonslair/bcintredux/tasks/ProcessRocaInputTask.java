@@ -83,9 +83,9 @@ public class ProcessRocaInputTask {
                         log.info("Parsed {} quantity update requests", requests.size());
 
                         // process the jobs
-                        requests.stream().map(qur -> {
-                            automationService.addQuantityToVariant(qur);
-                        })
+                        List<QuantityUpdate> jobs = requests.stream()
+                                .map(qur -> automationService.addQuantityToVariant(qur))
+                                .collect(Collectors.toList());
 
                         // write the jobs out to a results file with the same name
                         String filename = "output/"+key.substring(key.lastIndexOf("/")+1, key.lastIndexOf(".csv"))+"_OUTPUT.csv";
