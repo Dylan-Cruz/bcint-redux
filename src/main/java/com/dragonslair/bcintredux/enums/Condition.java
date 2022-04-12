@@ -19,11 +19,11 @@ public enum Condition {
 
     public static Condition fromLongForm(String s) {
         for (Condition c : Condition.values()) {
-            if (s.toLowerCase().startsWith(c.getLongForm())) {
+            if (s.startsWith(c.getLongForm())) {
                 return c;
             }
         }
-        return null;
+        throw new IllegalArgumentException("No condition exists for longform " + s);
     }
 
     public static Condition fromSku(String s) {

@@ -75,9 +75,9 @@ public class ProcessRocaInputTask {
                                 .map(l -> Arrays.asList(l.split(regexToSplit)))
                                 .map(fields -> automationService.addQuantityToVariant(
                                         fields.get(scryfallIndex),
-                                        parseQuantityFromLine(fields.get(quantityIndex)),
-                                        parseConditionFromLine(fields.get(conditionIndex)),
-                                        Finish.valueOf(fields.get(finishIndex).toLowerCase())))
+                                        Integer.parseInt(fields.get(quantityIndex)),
+                                        Condition.fromLongForm(fields.get(conditionIndex)),
+                                        Finish.fromRoca(fields.get(finishIndex))))
                                 .toList();
                         log.info("Processed {} quantity updates", jobs.size());
 
@@ -189,25 +189,6 @@ public class ProcessRocaInputTask {
         }
 
         return headerToIndexMap;
-    }
-
-    // utility method to parse an int from a field in the file
-    // returning 0 as default
-    private int parseQuantityFromLine(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    // utility method to parse condition from the line
-    private Condition parseConditionFromLine(String s) {
-        if (s == null || s.isBlank() || s.isEmpty()) {
-            return null;
-        } else {
-            return Condition.fromLongForm(s);
-        }
     }
 
     private String writeJobToDelimitedLine(QuantityUpdate aqJob) {
