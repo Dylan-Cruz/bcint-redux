@@ -8,10 +8,7 @@ import com.dragonslair.bcintredux.bigcommerce.dto.Variant;
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.enums.OperationStatus;
 import com.dragonslair.bcintredux.enums.ProductMetafieldKeys;
-import com.dragonslair.bcintredux.model.ListingAttempt;
-import com.dragonslair.bcintredux.model.ListingAttemptRequest;
-import com.dragonslair.bcintredux.model.PriceUpdate;
-import com.dragonslair.bcintredux.model.QuantityUpdate;
+import com.dragonslair.bcintredux.model.*;
 import com.dragonslair.bcintredux.scryfall.ScryfallService;
 import com.dragonslair.bcintredux.scryfall.dto.ScryfallCard;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
@@ -146,7 +143,13 @@ public class MtgAutomationService {
      * incrementing quantity and updating the price.
      * @return aqJob
      */
-    public QuantityUpdate addQuantityToVariant(String scryfallId, int quantity, Condition condition, Finish finishInHand) {
+    public QuantityUpdate addQuantityToVariant(QuantityUpdateRequest request) {
+        // break out the request fields
+        String scryfallId = request.getScryfallId();
+        int quantity = request.getQuantity();
+        Condition condition = request.getCondition();
+        Finish finishInHand = request.getFinish();
+
         // make the job to return
         QuantityUpdate qu = new QuantityUpdate()
                 .setQuantityToAdd(quantity)

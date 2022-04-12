@@ -2,6 +2,7 @@ package com.dragonslair.bcintredux.tasks;
 
 import com.dragonslair.bcintredux.enums.Condition;
 import com.dragonslair.bcintredux.model.QuantityUpdate;
+import com.dragonslair.bcintredux.model.QuantityUpdateRequest;
 import com.dragonslair.bcintredux.scryfall.enums.Finish;
 import com.dragonslair.bcintredux.services.MtgAutomationService;
 import lombok.extern.slf4j.Slf4j;
@@ -71,15 +72,20 @@ public class ProcessRocaInputTask {
                         final int finishIndex = headersToIndexes.get(FINISH_KEY);
 
                         // get a list of jobs to process and process them
-                        List<QuantityUpdate> jobs = reader.lines()
+                        List<QuantityUpdateRequest> requests = reader.lines()
                                 .map(l -> Arrays.asList(l.split(regexToSplit)))
-                                .map(fields -> automationService.addQuantityToVariant(
-                                        fields.get(scryfallIndex),
-                                        Integer.parseInt(fields.get(quantityIndex)),
-                                        Condition.fromLongForm(fields.get(conditionIndex)),
-                                        Finish.fromRoca(fields.get(finishIndex))))
-                                .toList();
-                        log.info("Processed {} quantity updates", jobs.size());
+                                .map(fields -> new QuantityUpdateRequest()
+                                    .setScryfallId(fields.get(scryfallIndex))
+                                    .setQuantity(Integer.parseInt(fields.get(quantityIndex)))
+                                    .setCondition(Condition.fromLongForm(fields.get(conditionIndex)))
+                                    .setFinish(Finish.fromRoca(fields.get(finishIndex)))
+                                ).toList();
+                        log.info("Parsed {} quantity update requests", requests.size());
+
+                        // process the jobs
+                        requests.stream().map(qur -> {
+                            automationService.addQuantityToVariant(qur);
+                        })
 
                         // write the jobs out to a results file with the same name
                         String filename = "output/"+key.substring(key.lastIndexOf("/")+1, key.lastIndexOf(".csv"))+"_OUTPUT.csv";
