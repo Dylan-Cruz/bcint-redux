@@ -1,6 +1,7 @@
 package com.dragonslair.bcintredux.bigcommerce;
 
 import com.dragonslair.bcintredux.bigcommerce.dto.*;
+import com.dragonslair.bcintredux.bigcommerce.enums.Categories;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiErrorResponse;
 import com.dragonslair.bcintredux.bigcommerce.rest.BcApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,9 +178,11 @@ public class BigCommerceService {
         return searchCategories(params);
     }
 
-    public Category getCategoryByName(String name) {
+    public Category getSinglesCategoryBySetName(String name) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("name", name);
+        params.add("parent_id", Integer.toString(Categories.MAGICSINGLES.getID()));
+
         return searchCategories(params).stream().findFirst().orElse(null);
     }
 

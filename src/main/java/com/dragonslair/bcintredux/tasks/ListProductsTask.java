@@ -65,7 +65,7 @@ public class ListProductsTask {
     private List<ListingAttempt> listSet(ScryfallSet set) {
         try {
             // get the category and it's products or create it
-            Category category = bcService.getCategoryByName(set.getName());
+            Category category = bcService.getSinglesCategoryBySetName(set.getName());
             List<String> existingSkus;
             if (category == null) {
                 log.debug("Creating category for set {}", set.getName());
