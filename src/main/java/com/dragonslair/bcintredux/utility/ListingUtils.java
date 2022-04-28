@@ -80,7 +80,7 @@ public class ListingUtils {
        try {
             // validate the image status of the card. Throw an error if high res scan isn't available.
             ImageStatus imageStatus = card.getImageStatus();
-            if (imageStatus != null && imageStatus == ImageStatus.highres_scan ) {
+            if (imageStatus != null && (imageStatus == ImageStatus.highres_scan || imageStatus == ImageStatus.lowres) ) {
 
                 // image is available, lets build our cpis
                 List<CreateProductImage> images = new ArrayList<>();
