@@ -82,6 +82,15 @@ public class ProcessRocaInputTask {
                                 ).toList();
                         log.info("Parsed {} quantity update requests", requests.size());
 
+                        // move the file to the processed 'dir' since we parsed it
+                        log.info("Moving input file to processed/");
+                        bcintS3Client.copyObject(r -> r.sourceBucket(bucketName)
+                                .sourceKey(key)
+                                .destinationBucket(bucketName)
+                                .destinationKey("processed/"+key.substring(key.lastIndexOf("/")+1))
+                        );
+                        bcintS3Client.deleteObject(r -> r.bucket(bucketName).key(key));
+
                         // process the jobs
                         List<QuantityUpdate> jobs = requests.stream()
                                 .map(qur -> automationService.addQuantityToVariant(qur))
@@ -95,15 +104,6 @@ public class ProcessRocaInputTask {
                                         jobs.stream().map(this::writeJobToDelimitedLine)
                                                 .collect(Collectors.joining("\n"))
                         ));
-
-                        // move the file to the processed 'dir'
-                        log.info("Moving input file to processed/");
-                        bcintS3Client.copyObject(r -> r.sourceBucket(bucketName)
-                                .sourceKey(key)
-                                .destinationBucket(bucketName)
-                                .destinationKey("processed/"+key.substring(key.lastIndexOf("/")+1))
-                        );
-                        bcintS3Client.deleteObject(r -> r.bucket(bucketName).key(key));
 
                         log.info("Processing complete for file {}", key);
                     } catch (Exception e) {
