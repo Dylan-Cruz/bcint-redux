@@ -198,7 +198,9 @@ public class ProcessRocaInputTask {
     }
 
     private String writeJobToDelimitedLine(QuantityUpdate aqJob) {
-        return aqJob.getCardName() + "," +
+        String cardName = !aqJob.getCardName().contains(",") ? aqJob.getCardName() : "\"" + aqJob.getCardName() + "\"";
+
+        return cardName + "," +
                 aqJob.getSet() + "," +
                 aqJob.getCollectorNumber() + "," +
                 aqJob.getScryfallId() + "," +
