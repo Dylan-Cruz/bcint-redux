@@ -65,6 +65,8 @@ public class MtgAutomationService {
 
             // persist metafields we need for better processing
             bcService.createProductMetafield(productId, new Metafield(ProductMetafieldKeys.SCRYFALLID.name(), card.getId()));
+            bcService.createProductMetafield(productId, new Metafield(ProductMetafieldKeys.IMAGE_STATUS.name(), card.getImageStatus().name()));
+
 
             // update the product as visible
             bcService.updateProduct(productId, new Product().setVisible(true));
