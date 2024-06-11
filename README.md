@@ -12,4 +12,4 @@ Repo to house a custom domain integration project for Dragon's Lair LLC built on
 - **ListProductsTask:** Scans the scryfall api for unique Magic: The Gathering products that don't exist on Dragon's Lair's instance of Big Commerge and creates a product listing for them.
 - **UpdatePricesTask:** Scans the scryfall api for price fluctuations in Magic: The Gathering card costs and if the price has deviated from the listing price in the Big Commerge database, update it. Pricing is fully configurable via external config.
 - **ProcessRocaInputTask:** parses the output from the Roca Sorter which is a card sorting robot and increments the inventory of those products on Big Commerce
-- **CleanErrorerListings:** in the event a listing is incomplete or is otherwise in an unrecoverable state, delete it so it will be recreated by the ListProductsTask
+- **CleanErroredListings:** in the event a listing is incomplete or is otherwise in an unrecoverable state, delete it so it will be recreated by the ListProductsTask
